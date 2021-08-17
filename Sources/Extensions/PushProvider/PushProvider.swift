@@ -102,7 +102,9 @@ import UserNotifications
 
     override func stop(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         Current.Log.notify("stopping with reason \(reason)", log: .error)
+        localPushManager?.invalidate()
         localPushManager = nil
+        Current.apiConnection.disconnect()
     }
 
     override func handleTimerEvent() {
