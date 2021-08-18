@@ -187,7 +187,7 @@ CHECKOUT OPTIONS:
     :commit: 76fb9453cb0def48a9204abfaf7794dd83f47690
     :git: https://github.com/home-assistant/HAKit.git
   NotificationTestCases:
-    :commit: f01bf06e0a3088d9eee1281df3fb08355093bc51
+    :commit: 03d66c0b348b1b005cba083d5b9007d29501ce43
     :git: https://github.com/home-assistant/mobile-apps-fcm-push.git
   ObjectMapper:
     :commit: a593b4d647a970b3d184d046f8f52b945083ccf9
