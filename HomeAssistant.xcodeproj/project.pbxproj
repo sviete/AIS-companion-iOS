@@ -6051,6 +6051,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Configuration/Entitlements/Launcher.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				INFOPLIST_FILE = Sources/Launcher/Info.plist;
 				PRODUCT_NAME = "Home Assistant Launcher";
@@ -6063,6 +6064,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Configuration/Entitlements/Launcher.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				INFOPLIST_FILE = Sources/Launcher/Info.plist;
 				PRODUCT_NAME = "Home Assistant Launcher";
@@ -6075,6 +6077,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Configuration/Entitlements/Launcher.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				INFOPLIST_FILE = Sources/Launcher/Info.plist;
 				PRODUCT_NAME = "Home Assistant Launcher";
@@ -6121,6 +6124,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9C4E5E25229D986B0044C8EC /* HomeAssistant.beta.xcconfig */;
 			buildSettings = {
+				BUNDLE_ID_PREFIX = com.aispeaker;
 			};
 			name = Beta;
 		};
@@ -6328,6 +6332,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9C4E5E21229D98220044C8EC /* HomeAssistant.debug.xcconfig */;
 			buildSettings = {
+				BUNDLE_ID_PREFIX = com.aispeaker;
 			};
 			name = Debug;
 		};
@@ -6335,6 +6340,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9C4E5E22229D98530044C8EC /* HomeAssistant.release.xcconfig */;
 			buildSettings = {
+				BUNDLE_ID_PREFIX = com.aispeaker;
 			};
 			name = Release;
 		};

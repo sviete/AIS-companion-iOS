@@ -154,7 +154,6 @@ EXTERNAL SOURCES:
     :branch: main
     :git: https://github.com/home-assistant/HAKit.git
   NotificationTestCases:
-    :path: ''
     :podspec: Configuration/Podspecs/NotificationTestCases.podspec.json
   ObjectMapper:
     :branch: master
@@ -238,6 +237,6 @@ SPEC CHECKSUMS:
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
   ZIPFoundation: e27423c004a5a1410c15933407747374e7c6cb6e
 
-PODFILE CHECKSUM: 8604b08b7e3502f0058c124bca9a041be210f5ae
+PODFILE CHECKSUM: 45c7f2fb7efd0ee4c97588afb1529924647dd8a7
 
 COCOAPODS: 1.10.2
