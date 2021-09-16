@@ -331,8 +331,8 @@
 		11DE823024FAE66F00E636B8 /* UIWindow+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11DE822F24FAE66F00E636B8 /* UIWindow+Additions.swift */; };
 		11DE9D8625B6103C0081C0ED /* LauncherAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11DE9D8525B6103C0081C0ED /* LauncherAppDelegate.swift */; };
 		11DE9F3A25B614EB0081C0ED /* Application.xib in Resources */ = {isa = PBXBuildFile; fileRef = 11DE9F3925B614EB0081C0ED /* Application.xib */; };
-		11DE9F9625B6173D0081C0ED /* Home Assistant Launcher.app in Resources */ = {isa = PBXBuildFile; fileRef = 11DE9D8325B6103C0081C0ED /* Home Assistant Launcher.app */; platformFilter = maccatalyst; };
-		11DE9FBE25B6186E0081C0ED /* Home Assistant Launcher.app in Embed Mac Launcher */ = {isa = PBXBuildFile; fileRef = 11DE9D8325B6103C0081C0ED /* Home Assistant Launcher.app */; platformFilter = maccatalyst; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		11DE9F9625B6173D0081C0ED /* AIS Launcher.app in Resources */ = {isa = PBXBuildFile; fileRef = 11DE9D8325B6103C0081C0ED /* AIS Launcher.app */; platformFilter = maccatalyst; };
+		11DE9FBE25B6186E0081C0ED /* AIS Launcher.app in Embed Mac Launcher */ = {isa = PBXBuildFile; fileRef = 11DE9D8325B6103C0081C0ED /* AIS Launcher.app */; platformFilter = maccatalyst; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		11E1639A250B1B760076D612 /* OnboardingStateObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E16399250B1B760076D612 /* OnboardingStateObservation.swift */; };
 		11E1639B250B1B760076D612 /* OnboardingStateObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E16399250B1B760076D612 /* OnboardingStateObservation.swift */; };
 		11E5CF8124BBCE1B009AC30F /* ProcessInfo+BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E5CF8024BBCE1B009AC30F /* ProcessInfo+BackgroundTask.swift */; };
@@ -987,7 +987,7 @@
 			dstPath = Contents/Library/LoginItems;
 			dstSubfolderSpec = 1;
 			files = (
-				11DE9FBE25B6186E0081C0ED /* Home Assistant Launcher.app in Embed Mac Launcher */,
+				11DE9FBE25B6186E0081C0ED /* AIS Launcher.app in Embed Mac Launcher */,
 			);
 			name = "Embed Mac Launcher";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1281,7 +1281,7 @@
 		11D826F024E39F2D005B8A86 /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		11DE822D24FAC51000E636B8 /* IncomingURLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLHandler.swift; sourceTree = "<group>"; };
 		11DE822F24FAE66F00E636B8 /* UIWindow+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+Additions.swift"; sourceTree = "<group>"; };
-		11DE9D8325B6103C0081C0ED /* Home Assistant Launcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Home Assistant Launcher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		11DE9D8325B6103C0081C0ED /* AIS Launcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AIS Launcher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		11DE9D8525B6103C0081C0ED /* LauncherAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAppDelegate.swift; sourceTree = "<group>"; };
 		11DE9D8E25B6103D0081C0ED /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		11DE9DDF25B610BD0081C0ED /* Launcher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Launcher.entitlements; sourceTree = "<group>"; };
@@ -1635,7 +1635,7 @@
 		B655E923227FF19C00CFDC94 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Intents.strings; sourceTree = "<group>"; };
 		B655E925227FF19D00CFDC94 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Intents.strings; sourceTree = "<group>"; };
 		B655E927227FF19E00CFDC94 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Intents.strings; sourceTree = "<group>"; };
-		B657A8E61CA646EB00121384 /* Home Assistant Δ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Home Assistant Δ.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B657A8E61CA646EB00121384 /* AIS Δ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AIS Δ.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B657A8E91CA646EB00121384 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = AppDelegate.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		B657A8F21CA646EB00121384 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B657A8F51CA646EB00121384 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -2839,7 +2839,7 @@
 		B657A8E71CA646EB00121384 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B657A8E61CA646EB00121384 /* Home Assistant Δ.app */,
+				B657A8E61CA646EB00121384 /* AIS Δ.app */,
 				B657A8FC1CA646EB00121384 /* HomeAssistant-Tests-App.xctest */,
 				B657A9071CA646EB00121384 /* HomeAssistant-Tests-UI.xctest */,
 				B6AAD7A11D827DD40090B220 /* HomeAssistant-Extensions-NotificationService.appex */,
@@ -2854,7 +2854,7 @@
 				1171506924DFCDE60065E874 /* HomeAssistant-Extensions-Widgets.appex */,
 				1155DD06250F4100003405C0 /* HomeAssistant-Extensions-Share.appex */,
 				1167402225198F9A00F51626 /* MacBridge.bundle */,
-				11DE9D8325B6103C0081C0ED /* Home Assistant Launcher.app */,
+				11DE9D8325B6103C0081C0ED /* AIS Launcher.app */,
 				11B92909266F145000786588 /* HomeAssistant-Extensions-PushProvider.appex */,
 			);
 			name = Products;
@@ -3526,7 +3526,7 @@
 			);
 			name = Launcher;
 			productName = Launcher;
-			productReference = 11DE9D8325B6103C0081C0ED /* Home Assistant Launcher.app */;
+			productReference = 11DE9D8325B6103C0081C0ED /* AIS Launcher.app */;
 			productType = "com.apple.product-type.application";
 		};
 		B627CB061D83C87B0057173E /* Extensions-NotificationContent */ = {
@@ -3580,7 +3580,7 @@
 			);
 			name = App;
 			productName = HomeAssistant;
-			productReference = B657A8E61CA646EB00121384 /* Home Assistant Δ.app */;
+			productReference = B657A8E61CA646EB00121384 /* AIS Δ.app */;
 			productType = "com.apple.product-type.application";
 		};
 		B657A8FB1CA646EB00121384 /* Tests-App */ = {
@@ -4260,7 +4260,7 @@
 				B64E755523F3BFF200472C04 /* orange@3x.png in Resources */,
 				B60616101D1F117700249C11 /* US-EN-Morgan-Freeman-Basement-Door-Opened.wav in Resources */,
 				B606167D1D1F117700249C11 /* US-EN-Alexa-Basement-Door-Opened.wav in Resources */,
-				11DE9F9625B6173D0081C0ED /* Home Assistant Launcher.app in Resources */,
+				11DE9F9625B6173D0081C0ED /* AIS Launcher.app in Resources */,
 				B60616931D1F117800249C11 /* US-EN-Alexa-Smoke-Detected-In-Basement.wav in Resources */,
 				B661FC7E226C87BB00E541DD /* home.json in Resources */,
 				B60616271D1F117700249C11 /* US-EN-Morgan-Freeman-Motion-In-Kitchen.wav in Resources */,
@@ -6054,7 +6054,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				INFOPLIST_FILE = Sources/Launcher/Info.plist;
-				PRODUCT_NAME = "Home Assistant Launcher";
+				PRODUCT_NAME = "AIS Launcher";
 				PROVISIONING_SUFFIX = .Launcher;
 				SDKROOT = macosx;
 			};
@@ -6067,7 +6067,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				INFOPLIST_FILE = Sources/Launcher/Info.plist;
-				PRODUCT_NAME = "Home Assistant Launcher";
+				PRODUCT_NAME = "AIS Launcher";
 				PROVISIONING_SUFFIX = .Launcher;
 				SDKROOT = macosx;
 			};
@@ -6080,7 +6080,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				INFOPLIST_FILE = Sources/Launcher/Info.plist;
-				PRODUCT_NAME = "Home Assistant Launcher";
+				PRODUCT_NAME = "AIS Launcher";
 				PROVISIONING_SUFFIX = .Launcher;
 				SDKROOT = macosx;
 			};
@@ -6163,7 +6163,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_MODULE_NAME = HomeAssistant;
-				PRODUCT_NAME = "Home Assistant β";
+				PRODUCT_NAME = "AIS β";
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = YES;
 			};
@@ -6379,7 +6379,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_MODULE_NAME = HomeAssistant;
-				PRODUCT_NAME = "Home Assistant Δ";
+				PRODUCT_NAME = "AIS Δ";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Local Developer: Main App";
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = YES;
@@ -6421,7 +6421,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_MODULE_NAME = HomeAssistant;
-				PRODUCT_NAME = "Home Assistant";
+				PRODUCT_NAME = AIS;
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = YES;
 			};
