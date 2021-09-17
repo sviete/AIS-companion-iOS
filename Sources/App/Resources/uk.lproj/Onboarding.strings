@@ -15,7 +15,7 @@
 "Kwy-Pt-nws.text" = "Ім'я користувача HTTP Basic";
 "LCc-oP-eTO.text" = "Пароль HTTP Basic";
 "lM3-aA-jqO.text" = "Аутентифікація";
-"mse-YA-DiV.text" = "Ласкаво просимо до Home Assistant Companion!";
+"mse-YA-DiV.text" = "Ласкаво просимо до AI-Speaker MOB!";
 "N4h-WC-wIw.normalTitle" = "Продовжити";
 "NJM-pS-Fuc.text" = "Ми знайшли один Home Assistant";
 "nJr-sw-A9l.text" = "Автентифіковано";
@@ -26,7 +26,7 @@
 "RSW-l5-eRA.normalTitle" = "Почати заново";
 "SnL-y3-0HP.text" = "Мій Home Assistant";
 "suf-pJ-Nle.normalTitle" = "Почати заново";
-"TEX-zW-Byk.text" = "Щоб отримати найкращі враження від користування Home Assistant Companion, будь ласка, надайте такі дозволи:";
+"TEX-zW-Byk.text" = "Щоб отримати найкращі враження від користування AI-Speaker MOB, будь ласка, надайте такі дозволи:";
 "Tqw-iY-A2S.normalTitle" = "Більше інформації";
 "UKm-Ju-0Yr.text" = "Під час підключення до вашого екземпляра сталася помилка. Неприпустимий сертифікат SSL. Через обмеження iOS ви не зможете продовжити налаштування, допоки не буде інстальовано дійсний сертифікат SSL. Ми рекомендуємо використовувати Lets Encrypt або Nabu Casa Remote UI.";
 "wsC-f5-jbO.text" = "Зараз ми готові підключитися до вашого Home Assistant та виконати початкову автентифікацію. Якщо натиснути кнопку підключення нижче, відкриється браузер для входу в систему.";

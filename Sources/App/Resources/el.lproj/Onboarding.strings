@@ -15,7 +15,7 @@
 "Kwy-Pt-nws.text" = "Βασικό όνομα χρήστη HTTP";
 "LCc-oP-eTO.text" = "Βασικός κωδικός πρόσβασης HTTP";
 "lM3-aA-jqO.text" = "Ελέγχος ταυτότητας";
-"mse-YA-DiV.text" = "Καλώς ήλθατε στο Home Assistant Companion!";
+"mse-YA-DiV.text" = "Καλώς ήλθατε στο AI-Speaker MOB!";
 "N4h-WC-wIw.normalTitle" = "Συνέχεια";
 "NJM-pS-Fuc.text" = "Βρήκαμε 1 Home Assistant";
 "nJr-sw-A9l.text" = "Έλεγχος ταυτότητας";
@@ -26,7 +26,7 @@
 "RSW-l5-eRA.normalTitle" = "Ξανά από την αρχή";
 "SnL-y3-0HP.text" = "Το Home Assistant μου";
 "suf-pJ-Nle.normalTitle" = "Ξανά από την αρχή";
-"TEX-zW-Byk.text" = "Για την καλύτερη εμπειρία κατά τη χρήση του Home Assistant Companion, παραχωρήστε τα ακόλουθα δικαιώματα:";
+"TEX-zW-Byk.text" = "Για την καλύτερη εμπειρία κατά τη χρήση του AI-Speaker MOB, παραχωρήστε τα ακόλουθα δικαιώματα:";
 "Tqw-iY-A2S.normalTitle" = "Περισσότερες πληροφορίες";
 "UKm-Ju-0Yr.text" = "Παρουσιάστηκε σφάλμα κατά τη σύνδεση στην παρουσία σας. Το πιστοποιητικό SSL δεν είναι έγκυρο. Λόγω περιορισμών iOS, δεν θα μπορείτε να συνεχίσετε με τη ρύθμιση έως ότου εγκατασταθεί ένα έγκυρο πιστοποιητικό SSL. Σας προτείνουμε Lets Encrypt ή Nabu Casa Remote UI";
 "wsC-f5-jbO.text" = "Τώρα είμαστε έτοιμοι να συνδεθούμε με το Home Assistant και να κάνουμε τον αρχικό έλεγχο ταυτότητας. Πατώντας το κουμπί Σύνδεση παρακάτω θα ανοίξει ένα πρόγραμμα περιήγησης για να συνδεθείτε.";

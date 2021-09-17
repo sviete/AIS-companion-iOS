@@ -99,7 +99,7 @@ public enum L10n {
       public static var title: String { return L10n.tr("Localizable", "about.home_assistant_on_twitter.title") }
     }
     public enum Logo {
-      /// Home Assistant Companion
+      /// AI-Speaker MOB
       public static var appTitle: String { return L10n.tr("Localizable", "about.logo.app_title") }
       /// Awaken Your Home
       public static var tagline: String { return L10n.tr("Localizable", "about.logo.tagline") }

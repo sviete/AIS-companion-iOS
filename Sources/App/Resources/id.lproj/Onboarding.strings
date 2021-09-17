@@ -15,7 +15,7 @@
 "Kwy-Pt-nws.text" = "Nama Pengguna HTTP Basic";
 "LCc-oP-eTO.text" = "Kata Sandi HTTP Basic";
 "lM3-aA-jqO.text" = "Autentikasi";
-"mse-YA-DiV.text" = "Selamat datang di Home Assistant Companion!";
+"mse-YA-DiV.text" = "Selamat datang di AI-Speaker MOB!";
 "N4h-WC-wIw.normalTitle" = "Lanjutkan";
 "NJM-pS-Fuc.text" = "Kami menemukan 1 Home Assistant";
 "nJr-sw-A9l.text" = "Diautentikasi";
@@ -26,7 +26,7 @@
 "RSW-l5-eRA.normalTitle" = "Mulai dari Awal";
 "SnL-y3-0HP.text" = "Home Assistant Saya";
 "suf-pJ-Nle.normalTitle" = "Mulai Dari Awal";
-"TEX-zW-Byk.text" = "Untuk pengalaman terbaik saat menggunakan Home Assistant Companion, berikan izin berikut:";
+"TEX-zW-Byk.text" = "Untuk pengalaman terbaik saat menggunakan AI-Speaker MOB, berikan izin berikut:";
 "Tqw-iY-A2S.normalTitle" = "Info Lebih Lanjut";
 "UKm-Ju-0Yr.text" = "Kami mengalami kesalahan saat menyambungkan ke instans Anda. Sertifikat SSL Anda tidak valid. Karena keterbatasan iOS, Anda tidak akan dapat melanjutkan pengaturan hingga sertifikat SSL yang valid diinstal. Kami sarankan untuk menggunakan Lets Encrypt atau Nabu Casa Remote UI.";
 "wsC-f5-jbO.text" = "Kami sekarang siap untuk terhubung ke Home Assistant Anda dan melakukan autentikasi awal. Dengan mengetuk tombol Hubungkan di bawah ini, browser akan terbuka agar Anda bisa masuk.";
