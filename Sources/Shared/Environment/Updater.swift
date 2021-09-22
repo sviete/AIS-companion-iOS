@@ -76,7 +76,9 @@ public class Updater {
     }
 
     public var isSupported: Bool {
-        Current.isCatalyst && !Current.isAppStore
+        // AIS
+        // Current.isCatalyst && !Current.isAppStore
+        false
     }
 
     public func check(dueToUserInteraction: Bool) -> Promise<AvailableUpdate> {
