@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="k1J-B5-uSb">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="k1J-B5-uSb">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome to AI-Speaker MOB!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mse-YA-DiV">
-                                <rect key="frame" x="61.5" y="8" width="252" height="23"/>
+                                <rect key="frame" x="95.5" y="8" width="184.5" height="47"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -43,7 +43,7 @@
                                 </connections>
                             </button>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="To continue with automatic setup, please connect to your home Wi-Fi network" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="djx-xj-AwF" userLabel="Wifi Disconnected">
-                                <rect key="frame" x="8" y="39" width="375" height="47"/>
+                                <rect key="frame" x="8" y="63" width="375" height="47"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -93,7 +93,7 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="gray" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="discoveredInstanceCell" textLabel="LVW-4r-7hW" detailTextLabel="bLi-Ty-QLQ" style="IBUITableViewCellStyleSubtitle" id="WW3-6V-g8b">
-                                        <rect key="frame" x="0.0" y="24.5" width="375" height="50.5"/>
+                                        <rect key="frame" x="0.0" y="44.5" width="375" height="50.5"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="WW3-6V-g8b" id="7SZ-ee-IAN">
                                             <rect key="frame" x="0.0" y="0.0" width="349.5" height="50.5"/>
@@ -599,14 +599,11 @@
                                 <rect key="frame" x="20" y="120" width="335" height="487"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="YlM-SI-sh2">
-                                        <rect key="frame" x="0.0" y="0.0" width="335" height="360"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="335" height="480"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tox-sk-7fZ" userLabel="Location Permission Line Item View" customClass="PermissionLineItemView" customModule="HomeAssistant" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="120"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="120" id="iUj-9u-5IR"/>
-                                                </constraints>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute type="number" keyPath="permissionInt">
                                                         <integer key="value" value="0"/>
@@ -616,9 +613,6 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kJc-Fh-WIp" userLabel="Motion Permission Line Item View" customClass="PermissionLineItemView" customModule="HomeAssistant" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="120" width="335" height="120"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="120" id="p10-IE-97q"/>
-                                                </constraints>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute type="number" keyPath="permissionInt">
                                                         <integer key="value" value="1"/>
@@ -628,12 +622,18 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YDH-nq-m24" userLabel="Notifications Permission Line Item View" customClass="PermissionLineItemView" customModule="HomeAssistant" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="240" width="335" height="120"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="120" id="Ao6-a2-zsK"/>
-                                                </constraints>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute type="number" keyPath="permissionInt">
                                                         <integer key="value" value="2"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oLK-58-zAw" userLabel="Notifications Permission Line Item View" customClass="PermissionLineItemView" customModule="HomeAssistant" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="360" width="335" height="120"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="permissionInt">
+                                                        <integer key="value" value="3"/>
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
                                             </view>
@@ -675,6 +675,7 @@
                     <navigationItem key="navigationItem" id="JEo-gj-M70"/>
                     <connections>
                         <outlet property="continueButton" destination="jrL-9x-fFX" id="0JI-v4-BDo"/>
+                        <outlet property="focusPermissionView" destination="oLK-58-zAw" id="xXG-pI-omd"/>
                         <outlet property="locationPermissionView" destination="tox-sk-7fZ" id="2uD-iO-QNd"/>
                         <outlet property="motionPermissionView" destination="kJc-Fh-WIp" id="kIX-eD-8rx"/>
                         <outlet property="notificationsPermissionView" destination="YDH-nq-m24" id="2cO-w9-gXu"/>
