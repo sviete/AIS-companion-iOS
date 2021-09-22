@@ -66,7 +66,7 @@ import UIKit
             case .default: // Light grey - #f0f1f6
                 return #colorLiteral(red: 0.941176471, green: 0.945098039, blue: 0.964705882, alpha: 1)
             case .allowed: // Blue - #0076ff
-                return #colorLiteral(red: 0, green: 0.462745098, blue: 1, alpha: 1)
+                return #colorLiteral(red: 1, green: 0.5781051517, blue: 0, alpha: 1)
             }
         }
 

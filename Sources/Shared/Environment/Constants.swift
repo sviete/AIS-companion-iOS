@@ -7,8 +7,8 @@ import Version
 public enum Constants {
     /// Home Assistant Blue
     public static var tintColor: UIColor {
-        let light = UIColor(hue: 199.0 / 360.0, saturation: 0.99, brightness: 0.96, alpha: 1.0)
-        let dark = UIColor(hue: 199.0 / 360.0, saturation: 0.99, brightness: 0.67, alpha: 1.0)
+        let light = UIColor(hue: 33.0 / 360.0, saturation: 0.99, brightness: 0.96, alpha: 1.0)
+        let dark = UIColor(hue: 33.0 / 360.0, saturation: 0.99, brightness: 0.67, alpha: 1.0)
 
         #if os(iOS)
         if #available(iOS 13, *) {
