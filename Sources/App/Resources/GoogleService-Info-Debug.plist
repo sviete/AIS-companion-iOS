@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>422932798058-3tuacv3bvm75v6grcjmhpqtl1fq7st9r.apps.googleusercontent.com</string>
+	<string>422932798058-obu2ftbigc59g6803r3jladpf46uciil.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.422932798058-3tuacv3bvm75v6grcjmhpqtl1fq7st9r</string>
+	<string>com.googleusercontent.apps.422932798058-obu2ftbigc59g6803r3jladpf46uciil</string>
 	<key>API_KEY</key>
 	<string>AIzaSyD51cRMBBpJcRg8kVCY4lZ0ifNeVL_kf4g</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.aispeaker.mob.dev</string>
+	<string>com.aispeaker.HomeAssistant.dev</string>
 	<key>PROJECT_ID</key>
 	<string>aispushnotification-f9ae3</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:422932798058:ios:cc935c98046a4313b60813</string>
+	<string>1:422932798058:ios:d6edd7d0446f14dfb60813</string>
 	<key>DATABASE_URL</key>
 	<string>https://aispushnotification-f9ae3.firebaseio.com</string>
 </dict>
