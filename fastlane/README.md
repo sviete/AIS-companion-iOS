@@ -50,31 +50,6 @@ Generate proper icons for all build trains
 fastlane update_swiftgen_config
 ```
 Update switftgen input/output files
-### update_strings
-```
-fastlane update_strings
-```
-Download latest localization files from Lokalize
-### push_strings
-```
-fastlane push_strings
-```
-Upload localized strings to Lokalise
-### unused_strings
-```
-fastlane unused_strings
-```
-Find unused localized strings
-### update_lokalise_metadata
-```
-fastlane update_lokalise_metadata
-```
-Upload App Store Connect metadata to Lokalise
-### update_asc_metadata
-```
-fastlane update_asc_metadata
-```
-Download App Store Connect metadata from Lokalise and upload to App Store Connect Connect
 ### set_version
 ```
 fastlane set_version

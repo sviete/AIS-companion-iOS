@@ -18,6 +18,7 @@ before_all do
   setup
 end
 
+sh('echo AR')
 private_lane :setup do
   ENV['FASTLANE_USER'] = ENV['HOMEASSISTANT_APPLE_ID']
   ENV['DELIVER_USERNAME'] = ENV['HOMEASSISTANT_APPLE_ID']
@@ -79,7 +80,7 @@ lane :update_dsyms do
 
   download_dsyms(
     after_uploaded_date: Date.today.prev_day(7).iso8601,
-    app_identifier: 'io.robbie.HomeAssistant',
+    app_identifier: 'com.aispeaker.mob',
     output_directory: directory
   )
 
@@ -111,100 +112,100 @@ lane :update_swiftgen_config do
   # rubocop:enable Layout/LineLength
 end
 
-desc 'Download latest localization files from Lokalize'
-lane :update_strings do
-  token = ENV['LOKALISE_API_TOKEN'] || prompt(
-    text: 'API token',
-    secure_text: true
-  )
+# desc 'Download latest localization files from Lokalize'
+# lane :update_strings do
+#   token = ENV['LOKALISE_API_TOKEN'] || prompt(
+#     text: 'API token',
+#     secure_text: true
+#   )
+#
+#   project_id = ENV['LOKALISE_PROJECT_ID'] || prompt(
+#     text: 'Project ID',
+#     secure_text: true
+#   )
+#
+#   sh(
+#     'lokalise2',
+#     '--token', token,
+#     '--project-id', project_id,
+#     'file', 'download',
+#     '--format', 'ios_sdk',
+#     '--bundle-structure', '%LANG_ISO%.lproj/Localizable.%FORMAT%',
+#     '--export-empty-as', 'base',
+#     '--export-sort', 'a_z',
+#     '--replace-breaks=false',
+#     '--include-comments=false',
+#     '--include-description=false',
+#     '--unzip-to', '../Sources/App/Resources',
+#     log: false
+#   )
+#
+#   sh('cd ../ && ./Pods/SwiftGen/bin/swiftgen')
+# end
+#
+# desc 'Upload localized strings to Lokalise'
+# lane :push_strings do
+#   source_directories = [
+#     '../Sources/App/Resources/en.lproj'
+#   ]
+#
+#   token = ENV['LOKALISE_API_TOKEN'] || prompt(
+#     text: 'API token',
+#     secure_text: true
+#   )
+#
+#   project_id = ENV['LOKALISE_PROJECT_ID'] || prompt(
+#     text: 'Project ID',
+#     secure_text: true
+#   )
+#
+#   source_directories.each do |directory|
+#     puts "Enumerating #{directory}..."
+#     Dir.each_child(directory) do |file|
+#       puts "Uploading file #{file}"
+#       sh(
+#         'lokalise2',
+#         '--token', token,
+#         '--project-id', project_id,
+#         'file', 'upload',
+#         '--file', "#{directory}/#{file}",
+#         '--lang-iso', 'en',
+#         log: false
+#       )
+#     end
+#   end
+# end
 
-  project_id = ENV['LOKALISE_PROJECT_ID'] || prompt(
-    text: 'Project ID',
-    secure_text: true
-  )
-
-  sh(
-    'lokalise2',
-    '--token', token,
-    '--project-id', project_id,
-    'file', 'download',
-    '--format', 'ios_sdk',
-    '--bundle-structure', '%LANG_ISO%.lproj/Localizable.%FORMAT%',
-    '--export-empty-as', 'base',
-    '--export-sort', 'a_z',
-    '--replace-breaks=false',
-    '--include-comments=false',
-    '--include-description=false',
-    '--unzip-to', '../Sources/App/Resources',
-    log: false
-  )
-
-  sh('cd ../ && ./Pods/SwiftGen/bin/swiftgen')
-end
-
-desc 'Upload localized strings to Lokalise'
-lane :push_strings do
-  source_directories = [
-    '../Sources/App/Resources/en.lproj'
-  ]
-
-  token = ENV['LOKALISE_API_TOKEN'] || prompt(
-    text: 'API token',
-    secure_text: true
-  )
-
-  project_id = ENV['LOKALISE_PROJECT_ID'] || prompt(
-    text: 'Project ID',
-    secure_text: true
-  )
-
-  source_directories.each do |directory|
-    puts "Enumerating #{directory}..."
-    Dir.each_child(directory) do |file|
-      puts "Uploading file #{file}"
-      sh(
-        'lokalise2',
-        '--token', token,
-        '--project-id', project_id,
-        'file', 'upload',
-        '--file', "#{directory}/#{file}",
-        '--lang-iso', 'en',
-        log: false
-      )
-    end
-  end
-end
-
-desc 'Find unused localized strings'
-lane :unused_strings do
-  files = [
-    '../Sources/App/Resources/en.lproj/Localizable.strings'
-  ]
-  files.each do |file|
-    puts "Looking at #{file}"
-    unused_strings = File.read(file)
-                         # grab the keys only
-                         .scan(/"([^"]+)" = [^;]+;/)
-                         # replace _ in the keys with nothing, which is what swiftgen does
-                         .map { |s| [s[0], s[0].gsub('_', '')] }
-                         # ignore any keys at the root level (aka like ok_label)
-                         .select { |full, _key| full.include?('.') }
-                         # find any strings that don't have matches in code
-                         .select { |_full, key| system("git grep --ignore-case --quiet #{key} -- ../*.swift") == false }
-    unused_strings.each { |full, _key| puts full }
-    puts "- Found #{unused_strings.count} unused strings"
-  end
-end
-
-desc 'Upload App Store Connect metadata to Lokalise'
-lane :update_lokalise_metadata do
-  lokalise_metadata(action: 'update_lokalise', override_translation: true)
-end
-
-desc 'Download App Store Connect metadata from Lokalise and upload to App Store Connect Connect'
-lane :update_asc_metadata do
-  lokalise_metadata(action: 'update_itunes')
-end
+# desc 'Find unused localized strings'
+# lane :unused_strings do
+#   files = [
+#     '../Sources/App/Resources/en.lproj/Localizable.strings'
+#   ]
+#   files.each do |file|
+#     puts "Looking at #{file}"
+#     unused_strings = File.read(file)
+#                          # grab the keys only
+#                          .scan(/"([^"]+)" = [^;]+;/)
+#                          # replace _ in the keys with nothing, which is what swiftgen does
+#                          .map { |s| [s[0], s[0].gsub('_', '')] }
+#                          # ignore any keys at the root level (aka like ok_label)
+#                          .select { |full, _key| full.include?('.') }
+#                          # find any strings that don't have matches in code
+#                          .select { |_full, key| system("git grep --ignore-case --quiet #{key} -- ../*.swift") == false }
+#     unused_strings.each { |full, _key| puts full }
+#     puts "- Found #{unused_strings.count} unused strings"
+#   end
+# end
+#
+# desc 'Upload App Store Connect metadata to Lokalise'
+# lane :update_lokalise_metadata do
+#   lokalise_metadata(action: 'update_lokalise', override_translation: true)
+# end
+#
+# desc 'Download App Store Connect metadata from Lokalise and upload to App Store Connect Connect'
+# lane :update_asc_metadata do
+#   lokalise_metadata(action: 'update_itunes')
+# end
 
 private_lane :set_version_info do |options|
   File.write(
