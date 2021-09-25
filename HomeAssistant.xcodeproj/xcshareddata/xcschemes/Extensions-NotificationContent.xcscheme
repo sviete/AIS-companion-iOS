@@ -30,7 +30,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B657A8E51CA646EB00121384"
-               BuildableName = "AIS.app"
+               BuildableName = "Home Assistant.app"
                BlueprintName = "App"
                ReferencedContainer = "container:HomeAssistant.xcodeproj">
             </BuildableReference>
@@ -61,7 +61,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B657A8E51CA646EB00121384"
-            BuildableName = "AIS.app"
+            BuildableName = "Home Assistant.app"
             BlueprintName = "App"
             ReferencedContainer = "container:HomeAssistant.xcodeproj">
          </BuildableReference>
@@ -79,7 +79,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B657A8E51CA646EB00121384"
-            BuildableName = "AIS.app"
+            BuildableName = "Home Assistant.app"
             BlueprintName = "App"
             ReferencedContainer = "container:HomeAssistant.xcodeproj">
          </BuildableReference>
