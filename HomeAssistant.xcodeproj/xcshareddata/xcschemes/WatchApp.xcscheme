@@ -59,7 +59,7 @@
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.Carousel"
-         RemotePath = "/Home Assistant">
+         RemotePath = "/AIS">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B6CC5D812159D10D00833E5D"
@@ -78,7 +78,7 @@
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.Carousel"
-         RemotePath = "/Home Assistant">
+         RemotePath = "/AIS">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B6CC5D812159D10D00833E5D"
