@@ -370,7 +370,7 @@ platform :ios do
       disable_xcpretty: true,
       output_directory: './build/ios',
       export_options: {
-        signingStyle: 'manual',
+        signingStyle: 'Automatic',
         provisioningProfiles: specifiers
       }
     )
@@ -395,7 +395,7 @@ platform :mac do
       disable_xcpretty: true,
       output_directory: './build/macos',
       export_options: {
-        signingStyle: 'manual',
+        signingStyle: 'Automatic',
         provisioningProfiles: specifiers
       }
     )
@@ -408,7 +408,7 @@ platform :mac do
       skip_package_pkg: false,
       output_directory: './build/macos',
       export_options: {
-        signingStyle: 'manual',
+        signingStyle: 'Automatic',
         provisioningProfiles: specifiers.transform_values { |v| v.sub(/Mac Dev ID/, 'Mac App Store') }
       }
     )

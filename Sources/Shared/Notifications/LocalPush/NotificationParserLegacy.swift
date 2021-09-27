@@ -26,7 +26,7 @@ public enum NotificationParserLegacy {
     public static func result(from input: [String: Any]) -> (headers: [String: Any], payload: [String: Any]) {
         let registrationInfo = input["registration_info"] as? [String: String] ?? [
             "os_version": Current.device.systemVersion(),
-            "app_id": "io.robbie.HomeAssistant",
+            "app_id": "com.aispeaker.HomeAssistant",
         ]
         let data = input["data"] as? [String: Any] ?? [:]
         var headers: [String: Any] = [
@@ -89,7 +89,7 @@ public enum NotificationParserLegacy {
             ],
         ]
 
-        guard registrationInfo["app_id"]?.contains("io.robbie.HomeAssistant") == true else {
+        guard registrationInfo["app_id"]?.contains("com.aispeaker.HomeAssistant") == true else {
             return (headers: headers, payload: payload)
         }
 
