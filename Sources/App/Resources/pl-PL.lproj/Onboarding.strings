@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Wprowadź adres ręcznie";
 "Rle-jZ-AWa.text" = "Skonfigurowane sensory";
 "SnL-y3-0HP.text" = "Mój Home Assistant";
-"TEX-zW-Byk.text" = "Aby uzyskać najlepsze doświadczenie podczas korzystania z Home Assistant Companion, należy udzielić następujących uprawnień:";
+"TEX-zW-Byk.text" = "Aby uzyskać najlepsze doświadczenie podczas korzystania z AI-Speaker, należy udzielić następujących uprawnień:";
 "Tqw-iY-A2S.normalTitle" = "Więcej informacji";
 "UKm-Ju-0Yr.text" = "Wystąpił błąd podczas łączenia się z Twoją instancją. Twój certyfikat SSL jest nieprawidłowy. Z powodu ograniczeń systemu iOS kontynuowanie instalacji nie będzie możliwe, dopóki nie zostanie zainstalowany ważny certyfikat SSL. Zalecamy Lets Encrypt lub Nabu Casa Remote UI.";
 "XyQ-gy-yHY.text" = "Połączony";
