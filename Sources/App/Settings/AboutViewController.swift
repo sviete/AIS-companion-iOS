@@ -8,7 +8,7 @@ class AboutViewController: HAFormViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = L10n.About.title
+        title = "AI-Speaker"
 
         if !Current.isCatalyst {
             navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -42,7 +42,7 @@ class AboutViewController: HAFormViewController {
                     bundle: nil
                 ))
                 logoHeader.onSetupView = { view, _ in
-                    view.AppTitle.text = L10n.About.Logo.appTitle
+                    view.AppTitle.text = "AIS Home Automation client"
                     view.Version.text = HomeAssistantAPI.clientVersionDescription
                     view.Tagline.text = L10n.About.Logo.tagline
                     view.addGestureRecognizer(UITapGestureRecognizer(
@@ -54,7 +54,7 @@ class AboutViewController: HAFormViewController {
                 $0.header = logoHeader
                 $0.tag = "logoView"
             }
-
+            /* AIS
             +++ pushLookingButtonRow {
                 $0.title = L10n.About.Beta.title
                 $0.disabled = Condition(booleanLiteral: Current.appConfiguration == .Beta)
@@ -68,7 +68,7 @@ class AboutViewController: HAFormViewController {
                 // We want to open this in Safari so the TestFlight redirect works.
                 UIApplication.shared.open(URL(string: urlStr)!, options: [:], completionHandler: nil)
             }
-
+            */
             <<< pushLookingButtonRow {
                 $0.title = L10n.About.Acknowledgements.title
                 $0.presentationMode = .show(controllerProvider: ControllerProvider.callback {
@@ -77,7 +77,7 @@ class AboutViewController: HAFormViewController {
                     _ = vc.navigationController?.popViewController(animated: true)
                 })
             }
-
+            /*
             <<< pushLookingButtonRow {
                 $0.title = L10n.About.Review.title
             }.onCellSelection { _, _ in
@@ -96,31 +96,32 @@ class AboutViewController: HAFormViewController {
                 let urlStr = "https://companion.home-assistant.io/app/ios/translate"
                 openURLInBrowser(URL(string: urlStr)!, self)
             }
-
+            */
             +++ pushLookingButtonRow {
                 $0.title = L10n.About.Website.title
             }.onCellSelection { _, _ in
-                openURLInBrowser(URL(string: "https://www.home-assistant.io/")!, self)
+                openURLInBrowser(URL(string: "https://www.ai-speaker.com")!, self)
             }
 
             <<< pushLookingButtonRow {
                 $0.title = L10n.About.Forums.title
             }.onCellSelection { _, _ in
-                openURLInBrowser(URL(string: "https://community.home-assistant.io/")!, self)
+                openURLInBrowser(URL(string: "https://ai-speaker.discourse.group/")!, self)
             }
-
+            /*
             <<< pushLookingButtonRow {
                 $0.title = L10n.About.Chat.title
             }.onCellSelection { _, _ in
                 openURLInBrowser(URL(string: "https://companion.home-assistant.io/app/ios/chat")!, self)
             }
+            */
 
             <<< pushLookingButtonRow {
                 $0.title = L10n.About.Documentation.title
             }.onCellSelection { _, _ in
-                openURLInBrowser(URL(string: "https://companion.home-assistant.io")!, self)
+                openURLInBrowser(URL(string: "https://ai-speaker.com")!, self)
             }
-
+            /*
             <<< pushLookingButtonRow {
                 $0.title = L10n.About.HomeAssistantOnTwitter.title
                 $0.hidden = hideBecauseChina
@@ -134,11 +135,12 @@ class AboutViewController: HAFormViewController {
             }.onCellSelection { _, _ in
                 self.openInFacebook(pageId: "292963007723872")
             }
+            */
 
             <<< pushLookingButtonRow {
                 $0.title = L10n.About.Github.title
             }.onCellSelection { _, _ in
-                openURLInBrowser(URL(string: "https://companion.home-assistant.io/app/ios/repo")!, self)
+                openURLInBrowser(URL(string: "https://github.com/sviete")!, self)
             }
 
             <<< pushLookingButtonRow {
