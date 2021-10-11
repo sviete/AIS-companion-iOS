@@ -1,8 +1,8 @@
 {
   "aps": {
     "alert": {
-      "title": "Massa placerat duis ultricies lacus",
-      "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. In nulla posuere sollicitudin aliquam."
+      "title": "Gdzie dzisiaj pracujesz?",
+      "body": "Jedziesz do biura czy zostajesz w domu."
     },
     "sound": "default",
     "category": "DYNAMIC"
@@ -10,11 +10,11 @@
   "actions": [
     {
       "identifier": "REPLY",
-      "title": "Lectus Magna",
+      "title": "Zostaje w domu",
     },
     {
       "action": "id2",
-      "title": "Bibendum Est",
+      "title": "Pracuje w biurze",
     }
   ]
 }
