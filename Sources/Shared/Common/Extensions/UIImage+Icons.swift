@@ -18,15 +18,20 @@ public extension UIImage {
 }
 
 public extension MaterialDesignIcons {
-    convenience init(serversideValueNamed value: String) {
-        self.init(named: value.normalizingIconString)
+    convenience init(serversideValueNamed value: String, fallback: MaterialDesignIcons? = nil) {
+        if let fallback = fallback {
+            self.init(named: value.normalizingIconString, fallback: fallback)
+        } else {
+            self.init(named: value.normalizingIconString)
+        }
     }
 }
 
 internal extension String {
     var normalizingIconString: String {
-        replacingOccurrences(of: "mdi:|hass:", with: "", options: .regularExpression)
+        let base = replacingOccurrences(of: "mdi:|hass:", with: "", options: .regularExpression)
             .replacingOccurrences(of: ":", with: "_")
             .replacingOccurrences(of: "-", with: "_")
+        return MDIMigration.migrate(icon: base)
     }
 }
