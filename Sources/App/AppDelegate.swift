@@ -30,7 +30,7 @@ private extension UIApplication {
     }
 }
 
-extension Environment {
+extension AppEnvironment {
     var sceneManager: SceneManager {
         UIApplication.shared.typedDelegate.sceneManager
     }
@@ -106,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             text: "Application Starting" + (launchingForLocation ? " due to location change" : ""),
             type: .unknown
         )
-        Current.clientEventStore.addEvent(event)
+        Current.clientEventStore.addEvent(event).cauterize()
 
         zoneManager = ZoneManager()
 
@@ -595,6 +595,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Current.modelManager.subscribe()
         Action.setupObserver()
         NotificationCategory.setupObserver()
+        WidgetOpenPageIntent.setupObserver()
     }
 
     func setupMenus() {

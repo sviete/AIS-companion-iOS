@@ -3,6 +3,7 @@ import RealmSwift
 #if os(iOS)
 import UIKit
 #endif
+import PromiseKit
 
 public extension Realm {
     /// An in-memory data store, intended to be used in tests.
@@ -152,11 +153,10 @@ public extension Realm {
 
                 do {
                     // always do an MDI migration, since micro-managing whether it needs to be done is annoying
-                    let mdiMigration = MDIMigration()
                     migration.enumerateObjects(ofType: Action.className()) { _, newObject in
                         let iconNameKey = "IconName"
                         if let oldIconName = newObject?[iconNameKey] as? String {
-                            newObject?[iconNameKey] = mdiMigration.migrate(icon: oldIconName)
+                            newObject?[iconNameKey] = MDIMigration.migrate(icon: oldIconName)
                         }
                     }
                     migration.enumerateObjects(ofType: WatchComplication.className()) { _, newObject in
@@ -170,7 +170,7 @@ public extension Realm {
                            let oldIconDict = oldJson[iconDictKey] as? [String: String],
                            let oldIconIcon = oldIconDict[iconDictIconKey] {
                             var updatedIconDict = oldIconDict
-                            updatedIconDict[iconDictIconKey] = mdiMigration.migrate(icon: oldIconIcon)
+                            updatedIconDict[iconDictIconKey] = MDIMigration.migrate(icon: oldIconIcon)
                             var updatedJson = oldJson
                             updatedJson[iconDictKey] = updatedIconDict
                             if let newData = try? JSONSerialization.data(withJSONObject: updatedJson, options: []) {
@@ -283,14 +283,29 @@ public extension Realm {
         #endif
     }
 
+    @discardableResult
     func reentrantWrite<Result>(
         withoutNotifying tokens: [NotificationToken] = [],
         _ block: () throws -> Result
-    ) throws -> Result {
+    ) -> Promise<Result> {
+        let promise: Promise<Result>
+
         if isInWriteTransaction {
-            return try block()
+            promise = Promise { seal in
+                seal.fulfill(try block())
+            }
         } else {
-            return try write(withoutNotifying: tokens, block)
+            promise = Current.backgroundTask(withName: "realm-write") { _ in
+                Promise<Result> { seal in
+                    seal.fulfill(try write(withoutNotifying: tokens, block))
+                }
+            }
         }
+
+        promise.catch { error in
+            Current.Log.error(error)
+        }
+
+        return promise
     }
 }
