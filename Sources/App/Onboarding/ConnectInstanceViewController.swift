@@ -39,7 +39,7 @@ class ConnectInstanceViewController: UIViewController {
             animationView.play(fromFrame: AnimationState.success.startFrame, toFrame: AnimationState.success.endFrame)
         }
 
-        let pendingViews: [AnimationView] = [integrationCreated, cloudStatus, encrypted, sensorsConfigured]
+        let pendingViews: [AnimationView] = [integrationCreated, encrypted, sensorsConfigured]
         for aView in pendingViews {
             configureAnimation(aView)
         }
@@ -140,8 +140,8 @@ class ConnectInstanceViewController: UIViewController {
             self.setAnimationStatus(self.integrationCreated, state: .success)
 
             let cloudAvailable = (regResponse.CloudhookURL != nil || regResponse.RemoteUIURL != nil)
-            let cloudState: AnimationState = cloudAvailable ? .success : .failed
-            self.setAnimationStatus(self.cloudStatus, state: cloudState)
+//            let cloudState: AnimationState = cloudAvailable ? .success : .failed
+//            self.setAnimationStatus(self.cloudStatus, state: cloudState)
 
             if cloudAvailable {
                 Current.settingsStore.connectionInfo?.useCloud = true
