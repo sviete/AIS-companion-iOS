@@ -2,43 +2,175 @@ import PromiseKit
 import Shared
 import UIKit
 
-class ManualSetupViewController: UIViewController {
-    @IBOutlet var connectButton: UIButton!
-    @IBOutlet var urlField: UITextField!
+class ManualSetupViewController: UIViewController, UITextFieldDelegate {
+    private let urlField = UITextField()
+    private var connectButton: UIButton?
+    private var connectLoading: UIActivityIndicatorView?
+    private var scrollView: UIScrollView?
+    private var bottomSpacer: UIView?
+    private let authController = OnboardingAuthenticationController()
 
-    public var notOnWifi: Bool = true
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        urlField.becomeFirstResponder()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let navVC = navigationController as? OnboardingNavigationViewController {
-            navVC.styleButton(connectButton)
+        view.backgroundColor = Current.style.onboardingBackground
+
+        let (scrollView, stackView, equalSpacers) = UIView.contentStackView(in: view, scrolling: true)
+        self.scrollView = scrollView
+
+        stackView.addArrangedSubview(with(UILabel()) {
+            $0.text = L10n.Onboarding.ManualSetup.title
+            Current.style.onboardingTitle($0)
+        })
+
+        stackView.addArrangedSubview(with(UILabel()) {
+            $0.text = L10n.Onboarding.ManualSetup.description
+            $0.font = .preferredFont(forTextStyle: .body)
+            $0.textColor = Current.style.onboardingLabelSecondary
+            $0.textAlignment = .natural
+            $0.numberOfLines = 0
+        })
+
+        stackView.addArrangedSubview(with(urlField) {
+            $0.delegate = self
+            $0.backgroundColor = UIColor(white: 0, alpha: 0.12)
+            $0.borderStyle = .roundedRect
+            $0.placeholder = "http://homeassistant.local:8123"
+            $0.textContentType = .URL
+            $0.keyboardType = .URL
+            $0.autocapitalizationType = .none
+            $0.autocorrectionType = .no
+            $0.spellCheckingType = .no
+            $0.smartDashesType = .no
+            $0.smartQuotesType = .no
+            $0.keyboardAppearance = .dark
+            $0.returnKeyType = .continue
+            $0.enablesReturnKeyAutomatically = true
+            $0.clearButtonMode = .whileEditing
+
+            if #available(iOS 13, *) {
+            } else {
+                $0.textColor = .white
+            }
+
+            let font = UIFont.preferredFont(forTextStyle: .body)
+            $0.font = font
+            $0.heightAnchor.constraint(greaterThanOrEqualToConstant: font.lineHeight * 2.5)
+                .isActive = true
+
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(updateConnectButton),
+                name: UITextField.textDidChangeNotification,
+                object: $0
+            )
+        })
+
+        switch traitCollection.userInterfaceIdiom {
+        case .pad, .mac:
+            urlField.widthAnchor.constraint(equalTo: stackView.readableContentGuide.widthAnchor)
+                .isActive = true
+        default:
+            urlField.widthAnchor.constraint(equalTo: stackView.layoutMarginsGuide.widthAnchor)
+                .isActive = true
         }
 
-        // Keyboard avoidance adapted from https://stackoverflow.com/a/27135992/486182
+        let button = with(UIButton(type: .custom)) {
+            $0.setTitle(L10n.Onboarding.ManualSetup.connect, for: .normal)
+            $0.addTarget(self, action: #selector(connectTapped(_:)), for: .touchUpInside)
+            Current.style.onboardingButtonPrimary($0)
+
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+        let loading: UIActivityIndicatorView = {
+            let indicator: UIActivityIndicatorView
+            if #available(iOS 13, *) {
+                indicator = UIActivityIndicatorView(style: .medium)
+            } else {
+                indicator = UIActivityIndicatorView(style: .white)
+            }
+
+            indicator.hidesWhenStopped = true
+            indicator.color = button.titleColor(for: .normal)
+            return indicator
+        }()
+
+        connectButton = button
+        connectLoading = loading
+
+        with(button) {
+            $0.addSubview(loading)
+            loading.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                loading.centerYAnchor.constraint(equalTo: $0.centerYAnchor),
+                loading.trailingAnchor.constraint(equalTo: $0.trailingAnchor, constant: -16),
+            ])
+        }
+
+        if Current.isCatalyst {
+            // iPad and iPhone unconditionally show the input view, but mac never does
+            stackView.addArrangedSubview(button)
+        } else {
+            urlField.inputAccessoryView = with(InputAccessoryView()) {
+                $0.directionalLayoutMargins = stackView.directionalLayoutMargins
+                $0.contentView = button
+            }
+        }
+
+        stackView.addArrangedSubview(with(equalSpacers.next()) {
+            bottomSpacer = $0
+        })
+
+        updateConnectButton()
+
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(keyboardWillShow(notification:)),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide(notification:)),
-            name: UIResponder.keyboardWillHideNotification,
+            selector: #selector(keyboardWillChangeFrame(_:)),
+            name: UIResponder.keyboardWillChangeFrameNotification,
             object: nil
         )
     }
 
-    @IBAction func connectButtonTapped(_ sender: UIButton) {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        connect()
+        return false
+    }
+
+    @objc private func connectTapped(_ sender: UIButton) {
         Current.Log.verbose("Connect button tapped")
+        connect()
+    }
+
+    @objc private func updateConnectButton() {
+        connectButton?.isEnabled = urlField.text?.isEmpty == false
+    }
+
+    private var isConnecting: Bool = false {
+        didSet {
+            if isConnecting {
+                connectLoading?.startAnimating()
+                connectButton?.isUserInteractionEnabled = false
+            } else {
+                connectLoading?.stopAnimating()
+                connectButton?.isUserInteractionEnabled = true
+            }
+        }
+    }
+
+    private func connect() {
+        guard !isConnecting else { return }
+
+        isConnecting = true
 
         firstly {
             validatedURL(from: urlField.text)
-        }.done { updated in
-            self.urlField.text = updated
-            self.perform(segue: StoryboardSegue.Onboarding.setupManualInstance)
-        }.catch { error in
+        }.recover { [self] error -> Promise<URL> in
             Current.Log.error("Couldn't make a URL: \(error)")
 
             let alert = UIAlertController(
@@ -47,34 +179,35 @@ class ManualSetupViewController: UIViewController {
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: L10n.okLabel, style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            present(alert, animated: true, completion: nil)
+
+            return .init(error: PMKError.cancelled)
+        }.then { [authController, view] (url: URL) -> Promise<Void> in
+            let instance = DiscoveredHomeAssistant(manualURL: url)
+            return authController.authenticate(from: instance, sender: view!)
+        }.ensure { [self] in
+            isConnecting = false
+        }.done { [self] in
+            show(authController.successController(), sender: self)
+        }.catch { [self] error in
+            show(authController.failureController(error: error), sender: self)
         }
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let segueType = StoryboardSegue.Onboarding(segue) else { return }
-        if segueType == .setupManualInstance, let vc = segue.destination as? AuthenticationViewController {
-            guard let fieldVal = urlField.text else {
-                Current.Log
-                    .error(
-                        "Unable to get text! Field is \(String(describing: urlField)), text \(String(describing: urlField.text))"
-                    )
-                return
-            }
-            guard let url = URL(string: fieldVal) else {
-                Current.Log.error("Unable to convert text to URL! Text was \(fieldVal)")
-                return
-            }
-
-            vc.instance = DiscoveredHomeAssistant(baseURL: url, name: "Manual", version: "0.92.0")
-        }
-    }
-
-    enum ValidateError: Error {
+    enum ValidateError: Error, CancellableError {
         case emptyString
         case cannotConvert
-        case noScheme
         case invalidScheme
+        case noSchemeCancelled
+
+        var isCancelled: Bool {
+            switch self {
+            case .emptyString, .cannotConvert, .invalidScheme:
+                return false
+            case .noSchemeCancelled:
+                return true
+            }
+        }
     }
 
     private func promptForScheme(for string: String) -> Promise<String> {
@@ -82,8 +215,13 @@ class ManualSetupViewController: UIViewController {
             let alert = UIAlertController(
                 title: L10n.Onboarding.ManualSetup.NoScheme.title,
                 message: L10n.Onboarding.ManualSetup.NoScheme.message,
-                preferredStyle: .alert
+                preferredStyle: .actionSheet
             )
+
+            with(alert.popoverPresentationController) {
+                $0?.sourceView = urlField
+                $0?.sourceRect = urlField.bounds
+            }
 
             func action(for scheme: String) -> UIAlertAction {
                 UIAlertAction(title: scheme, style: .default, handler: { _ in
@@ -94,13 +232,13 @@ class ManualSetupViewController: UIViewController {
             alert.addAction(action(for: "http://"))
             alert.addAction(action(for: "https://"))
             alert.addAction(UIAlertAction(title: L10n.cancelLabel, style: .cancel, handler: { _ in
-                seal.reject(ValidateError.noScheme)
+                seal.reject(ValidateError.noSchemeCancelled)
             }))
             self.present(alert, animated: true, completion: nil)
         }
     }
 
-    private func validatedURL(from inputString: String?) -> Promise<String> {
+    private func validatedURL(from inputString: String?) -> Promise<URL> {
         let start = Promise<String?>.value(inputString)
 
         return start
@@ -118,28 +256,34 @@ class ManualSetupViewController: UIViewController {
                 } else {
                     throw ValidateError.invalidScheme
                 }
-            }.map { (string: String) -> String in
-                if URL(string: string) != nil {
-                    return string
+            }.map { (string: String) -> URL in
+                if let url = URL(string: string) {
+                    return url
                 } else {
                     throw ValidateError.cannotConvert
                 }
             }
     }
 
-    @objc func keyboardWillShow(notification: NSNotification) {
-        guard let userInfo = notification.userInfo else { return }
-        guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-        if view.frame.origin.y == 0 {
-            view.frame.origin.y -= keyboardSize.cgRectValue.height / 2
+    @objc private func keyboardWillChangeFrame(_ note: Notification) {
+        guard let scrollView = scrollView,
+              let frameValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+            return
         }
-    }
 
-    @objc func keyboardWillHide(notification: NSNotification) {
-        guard let userInfo = notification.userInfo else { return }
-        guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-        if view.frame.origin.y != 0 {
-            view.frame.origin.y += keyboardSize.cgRectValue.height / 2
+        UIView.performWithoutAnimation {
+            view.layoutIfNeeded()
+        }
+
+        let intersectHeight = view.convert(frameValue.cgRectValue, from: nil).intersection(scrollView.frame).height
+        let insetHeight = max(0, intersectHeight - (bottomSpacer?.bounds.height ?? 0))
+
+        scrollView.contentInset.bottom = insetHeight
+
+        if #available(iOS 13, *) {
+            scrollView.verticalScrollIndicatorInsets.bottom = insetHeight
+        } else {
+            scrollView.scrollIndicatorInsets.bottom = insetHeight
         }
     }
 }

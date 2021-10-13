@@ -1,9 +1,41 @@
 import Foundation
 import Shared
 
-public class BonjourDelegate: NSObject, NetServiceBrowserDelegate, NetServiceDelegate {
-    var resolving = [NetService]()
-    var resolvingDict = [String: NetService]()
+public protocol BonjourObserver: AnyObject {
+    func bonjour(_ bonjour: Bonjour, didAdd instance: DiscoveredHomeAssistant)
+    func bonjour(_ bonjour: Bonjour, didRemoveInstanceWithName name: String)
+}
+
+public class Bonjour: NSObject, NetServiceBrowserDelegate, NetServiceDelegate {
+    public weak var observer: BonjourObserver?
+
+    private var browser: NetServiceBrowser
+    private var resolving = [NetService]()
+    private var resolvingDict = [String: NetService]()
+    private var browserIsRunning: Bool = false
+
+    override public init() {
+        self.browser = NetServiceBrowser()
+        super.init()
+    }
+
+    public func start() {
+        precondition(Thread.isMainThread)
+        guard !browserIsRunning else { return }
+        Current.Log.info()
+        browserIsRunning = true
+        browser.delegate = self
+        browser.searchForServices(ofType: "_home-assistant._tcp.", inDomain: "local.")
+    }
+
+    public func stop() {
+        precondition(Thread.isMainThread)
+        guard browserIsRunning else { return }
+        Current.Log.info()
+        browserIsRunning = false
+        browser.stop()
+        browser.delegate = nil
+    }
 
     // Browser methods
 
@@ -12,30 +44,33 @@ public class BonjourDelegate: NSObject, NetServiceBrowserDelegate, NetServiceDel
         didFind netService: NetService,
         moreComing moreServicesComing: Bool
     ) {
-        Current.Log.verbose("BonjourDelegate.Browser.didFindService")
+        Current.Log.verbose()
         netService.delegate = self
         resolvingDict[netService.name] = netService
         netService.resolve(withTimeout: 0.0)
     }
 
     public func netServiceDidResolveAddress(_ sender: NetService) {
-        Current.Log.verbose("BonjourDelegate.Browser.netServiceDidResolveAddress")
-        if let txtRecord = sender.txtRecordData() {
-            let potentialServiceDict = NetService.dictionary(fromTXTRecord: txtRecord) as NSDictionary
+        Current.Log.verbose()
 
-            // This fixes a crash in 0.110, the root cause is the dictionary returned
-            // above contains NSNull instead of NSData, which Swift will crash trying
-            // to cast to the Swift dictionary. So we do it the hard way.
-            let serviceDict = (potentialServiceDict as? [String: Any])?
-                .compactMapValues { $0 as? Data } ?? [:]
+        guard let txtRecord = sender.txtRecordData() else { return }
 
-            let discoveryInfo = DiscoveryInfoFromDict(locationName: sender.name, netServiceDictionary: serviceDict)
-            discoveryInfo.AnnouncedFrom = sender.addresses?.compactMap { InternetAddress(data: $0)?.host } ?? []
-            NotificationCenter.default.post(
-                name: NSNotification.Name(rawValue: "homeassistant.discovered"),
-                object: nil,
-                userInfo: discoveryInfo.toJSON()
+        let potentialServiceDict = NetService.dictionary(fromTXTRecord: txtRecord) as NSDictionary
+
+        // This fixes a crash in 0.110, the root cause is the dictionary returned
+        // above contains NSNull instead of NSData, which Swift will crash trying
+        // to cast to the Swift dictionary. So we do it the hard way.
+        let serviceDict = (potentialServiceDict as? [String: Any])?
+            .compactMapValues { $0 as? Data } ?? [:]
+
+        do {
+            let discovered = try discoveredHomeAssistant(
+                bonjourName: sender.name,
+                netServiceDictionary: serviceDict
             )
+            observer?.bonjour(self, didAdd: discovered)
+        } catch {
+            Current.Log.error(error)
         }
     }
 
@@ -44,96 +79,25 @@ public class BonjourDelegate: NSObject, NetServiceBrowserDelegate, NetServiceDel
         didRemove netService: NetService,
         moreComing moreServicesComing: Bool
     ) {
-        Current.Log.verbose("BonjourDelegate.Browser.didRemoveService")
-        let discoveryInfo: [NSObject: Any] = ["name" as NSObject: netService.name]
-        NotificationCenter.default.post(
-            name: NSNotification.Name(rawValue: "homeassistant.undiscovered"),
-            object: nil,
-            userInfo: discoveryInfo
-        )
+        Current.Log.verbose(netService.name)
+
+        observer?.bonjour(self, didRemoveInstanceWithName: netService.name)
         resolvingDict.removeValue(forKey: netService.name)
     }
 
-    private func DiscoveryInfoFromDict(
-        locationName: String,
+    private func discoveredHomeAssistant(
+        bonjourName: String,
         netServiceDictionary: [String: Data]
-    ) -> DiscoveredHomeAssistant {
+    ) throws -> DiscoveredHomeAssistant {
         var outputDict: [String: Any] = [:]
         for (key, value) in netServiceDictionary {
             outputDict[key] = String(data: value, encoding: .utf8)
-            if outputDict[key] as? String == "true" || outputDict[key] as? String == "false" {
-                if let stringedKey = outputDict[key] as? String {
-                    outputDict[key] = Bool(stringedKey)
-                }
-            }
         }
-        outputDict["location_name"] = locationName
-        return DiscoveredHomeAssistant(JSON: outputDict)!
-    }
-}
-
-public class Bonjour {
-    private var nsb: NetServiceBrowser
-    private var nsp: NetService
-    private var nsdel: BonjourDelegate?
-
-    public var browserIsRunning: Bool = false
-    public var publishIsRunning: Bool = false
-
-    public init() {
-        self.nsb = NetServiceBrowser()
-        self.nsp = NetService(
-            domain: "local",
-            type: "_hass-mobile-app._tcp.",
-            name: Current.device.deviceName(),
-            port: 65535
-        )
-    }
-
-    private func buildPublishDict() -> [String: Data] {
-        var publishDict: [String: Data] = [:]
-
-        if let data = Constants.build.data(using: .utf8) {
-            publishDict["buildNumber"] = data
+        if outputDict["location_name"] == nil {
+            outputDict["location_name"] = bonjourName
         }
-
-        if let data = Constants.version.data(using: .utf8) {
-            publishDict["versionNumber"] = data
-        }
-
-        if let permanentID = Constants.PermanentID.data(using: .utf8) {
-            publishDict["permanentID"] = permanentID
-        }
-
-        if let data = Constants.BundleID.data(using: .utf8) {
-            publishDict["bundleIdentifier"] = data
-        }
-
-        return publishDict
-    }
-
-    public func startDiscovery() {
-        browserIsRunning = true
-        nsdel = BonjourDelegate()
-        nsb.delegate = nsdel
-        nsb.searchForServices(ofType: "_home-assistant._tcp.", inDomain: "local.")
-    }
-
-    public func stopDiscovery() {
-        browserIsRunning = false
-        nsb.stop()
-    }
-
-    public func startPublish() {
-        //        self.nsdel = BonjourDelegate()
-        //        nsp.delegate = nsdel
-        publishIsRunning = true
-        nsp.setTXTRecord(NetService.data(fromTXTRecord: buildPublishDict()))
-        nsp.publish()
-    }
-
-    public func stopPublish() {
-        publishIsRunning = false
-        nsp.stop()
+        var instance = try DiscoveredHomeAssistant(JSON: outputDict, context: nil)
+        instance.bonjourName = bonjourName
+        return instance
     }
 }
