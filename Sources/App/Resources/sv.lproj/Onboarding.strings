@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Ange adress manuellt";
 "Rle-jZ-AWa.text" = "Sensorer konfigurerade";
 "SnL-y3-0HP.text" = "Min Home Assistant";
-"TEX-zW-Byk.text" = "För bästa upplevelse av Home Assistant Companion, ge följande behörigheter:";
+"TEX-zW-Byk.text" = "För bästa upplevelse av AI-Speaker, ge följande behörigheter:";
 "Tqw-iY-A2S.normalTitle" = "Mer information";
 "UKm-Ju-0Yr.text" = "Vi upptäckte ett fel vid anslutning till din instans. SSL-certifikatet är ogiltigt. På grund av iOS-begränsningar kommer du inte att kunna fortsätta med konfigurationen förrän ett giltigt SSL-certifikat har installerats. Vi rekommenderar Let's Encrypt  eller NABU Casa Remote UI.";
 "XyQ-gy-yHY.text" = "Ansluten";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "Anslut";
 "jrL-9x-fFX.normalTitle" = "Fortsätt";
 "lM3-aA-jqO.text" = "Autentisering";
-"mse-YA-DiV.text" = "Välkommen till Home Assistant Companion!";
+"mse-YA-DiV.text" = "Välkommen till AI-Speaker!";
 "nJr-sw-A9l.text" = "Autentiserad";
 "suf-pJ-Nle.normalTitle" = "Börja om";
 "wsC-f5-jbO.text" = "Vi är nu redo att ansluta till din Home Assistant och göra den första autentiseringen. Knacka på Anslut-knappen nedan så öppnas en webbläsare för inloggning.";

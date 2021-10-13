@@ -1,4 +1,4 @@
-Willkommen bei Home Assistant Companion Version 2019.1, auch bekannt als 2.0! Es hat sehr lange gedauert, aber es ist endlich da. Hier sind einige der neuen Funktionen in dieser Version:
+Willkommen bei AI-Speaker Version 2019.1, auch bekannt als 2.0! Es hat sehr lange gedauert, aber es ist endlich da. Hier sind einige der neuen Funktionen in dieser Version:
 
 - Brandneue Push-Benachrichtigungs-Engine von Firebase für noch komplexere Benachrichtigungen als je zuvor, einschließlich kritischer Benachrichtigungen und vielem mehr
 - Siri Shortcuts: Jetzt können Sie mit Ihrem Home Assistant über Siri und die Shortcuts-App interagieren
@@ -9,4 +9,4 @@ Willkommen bei Home Assistant Companion Version 2019.1, auch bekannt als 2.0! Es
 
 Stattdessen gibt es viele neue Funktionen und Verbesserungen zu entdecken. Weitere Informationen finden Sie in den Foren und in der neuen Dokumentation.
 
-Vielen Dank, dass Sie Home Assistant Companion verwenden!
+Vielen Dank, dass Sie AI-Speaker verwenden!

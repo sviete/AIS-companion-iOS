@@ -88,7 +88,7 @@ class WelcomeViewController: UIViewController {
 
     @objc private func learnMoreTapped(_ sender: UIButton) {
         present(
-            SFSafariViewController(url: .init(string: "http://www.home-assistant.io")!),
+            SFSafariViewController(url: .init(string: "https://www.ai-speaker.com")!),
             animated: true,
             completion: nil
         )

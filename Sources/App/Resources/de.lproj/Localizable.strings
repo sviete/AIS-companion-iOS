@@ -205,7 +205,7 @@ Tags funktionieren auf jedem Gerät mit Hardwareunterstützung zum Lesen von NFC
 "onboarding.connection_test_result.ssl_untrusted.description" = "Dein SSL-Zertifikat ist nicht vertrauenswürdig. %@.";
 "onboarding.connection_test_result.too_old.description" = "Du musst deine Home Assistant-Version aktualisieren.";
 "onboarding.connection_test_result.unknown_error.description" = "Unbekannter Fehler: %@";
-"onboarding.logged_out_from_move.body" = "Die Home Assistant iOS App hat kürzlich den Entwickler im App Store gewechselt. Dieser Wechsel benötigt leider das Ausloggen deines Gerätes aus Home Assistant. Deine Aktionen und deine lokale Konfiguration sind immer noch verfügbar nach dem erneuten Einloggen.";
+"onboarding.logged_out_from_move.body" = "Die AI-Speaker App hat kürzlich den Entwickler im App Store gewechselt. Dieser Wechsel benötigt leider das Ausloggen deines Gerätes aus Home Assistant. Deine Aktionen und deine lokale Konfiguration sind immer noch verfügbar nach dem erneuten Einloggen.";
 "onboarding.logged_out_from_move.continue" = "Fortsetzen";
 "onboarding.logged_out_from_move.duplicate_warning" = "Zum Vermeiden von doppelten Entitäten musst du vor dem Einloggen die existierende mobile_app Integration für dieses Gerät in deinem Browser entfernen. Sobald du dich eingeloggt hast, starte HA neu, damit die Dienste aktualisiert werden.";
 "onboarding.logged_out_from_move.learn_more" = "Mehr Informationen über den Umzug.";

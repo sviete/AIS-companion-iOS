@@ -205,7 +205,7 @@ Tags vil virke på enhver enhed med Home Assistant installeret som har hardwareu
 "onboarding.connection_test_result.ssl_untrusted.description" = "Dit SSL-certifikat er ikke betroet. %@.";
 "onboarding.connection_test_result.too_old.description" = "Du skal opgradere din Home Assistant-version.";
 "onboarding.connection_test_result.unknown_error.description" = "Ukendt fejl: %@";
-"onboarding.logged_out_from_move.body" = "Home Assistant iOS-appen har for nylig skiftet organisation i App Store. Dette skridt krævede desværre at logge dig ud.\
+"onboarding.logged_out_from_move.body" = "AI-Speaker-appen har for nylig skiftet organisation i App Store. Dette skridt krævede desværre at logge dig ud.\
 \
 Dine handlinger og din lokale konfiguration vil stadig være tilgængelige, efter du har logget ind.";
 "onboarding.logged_out_from_move.continue" = "Fortsæt";

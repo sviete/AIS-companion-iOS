@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "手動輸入位址";
 "Rle-jZ-AWa.text" = "感測器已設定";
 "SnL-y3-0HP.text" = "我的 Home Assistant";
-"TEX-zW-Byk.text" = "為了取得 Home Assistant Companion 最佳的使用經驗，請授予以下權限：";
+"TEX-zW-Byk.text" = "為了取得 AI-Speaker 最佳的使用經驗，請授予以下權限：";
 "Tqw-iY-A2S.normalTitle" = "更多資訊";
 "UKm-Ju-0Yr.text" = "連線至裝置時發生錯誤，SSL 認證無效。由於 iOS 限制，將無法繼續設定，直到已安裝有效的 SSL 認證。建議您使用 Lets Encrypt 或 Nabu Casa Remote UI。";
 "XyQ-gy-yHY.text" = "已連接";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "連接";
 "jrL-9x-fFX.normalTitle" = "繼續";
 "lM3-aA-jqO.text" = "驗證";
-"mse-YA-DiV.text" = "歡迎使用 Home Assistant Companion！";
+"mse-YA-DiV.text" = "歡迎使用 AI-Speaker！";
 "nJr-sw-A9l.text" = "已驗證";
 "suf-pJ-Nle.normalTitle" = "重新開始";
 "wsC-f5-jbO.text" = "現在正準備連線至您的 Home Assistant 並進行初始驗證。點選下方連線按鈕、將開啟瀏覽器進行登入。";

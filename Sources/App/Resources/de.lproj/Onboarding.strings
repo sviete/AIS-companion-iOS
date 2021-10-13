@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Adresse manuell eingeben";
 "Rle-jZ-AWa.text" = "Sensoren konfiguriert";
 "SnL-y3-0HP.text" = "Mein Home Assistant";
-"TEX-zW-Byk.text" = "Um die beste Erfahrung bei der Verwendung von Home Assistant Companion zu erhalten, erteile bitte die folgenden Berechtigungen:";
+"TEX-zW-Byk.text" = "Um die beste Erfahrung bei der Verwendung von AI-Speaker zu erhalten, erteile bitte die folgenden Berechtigungen:";
 "Tqw-iY-A2S.normalTitle" = "Mehr Info";
 "UKm-Ju-0Yr.text" = "Beim Verbinden mit Home Assistant ist ein Fehler aufgetreten. Das SSL-Zertifikat ist ungültig. Aufgrund von iOS-Einschränkungen kann das Setup erst dann fortgesetzt werden, wenn ein gültiges SSL-Zertifikat installiert ist. Wir empfehlen Lets Encrypt oder Nabu Casa Remote UI.";
 "XyQ-gy-yHY.text" = "Verbunden";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "Verbinden";
 "jrL-9x-fFX.normalTitle" = "Weiter";
 "lM3-aA-jqO.text" = "Authentifizierung";
-"mse-YA-DiV.text" = "Willkommen bei Home Assistant Companion!";
+"mse-YA-DiV.text" = "Willkommen bei AI-Speaker!";
 "nJr-sw-A9l.text" = "Authentifiziert";
 "suf-pJ-Nle.normalTitle" = "Von vorn anfangen";
 "wsC-f5-jbO.text" = "Wir sind jetzt bereit, uns mit deinem Home Assistant zu verbinden und die initiale Authentifizierung durchzuführen. Wenn du unten auf die Schaltfläche Verbinden klickst, öffnet sich ein Browser, in dem du dich einloggen kannst.";

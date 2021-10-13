@@ -21,11 +21,11 @@ public enum Constants {
     }
 
     public static var lighterTintColor: UIColor {
-        UIColor(hue: 199.0 / 360.0, saturation: 0.99, brightness: 0.96, alpha: 1.0)
+        UIColor(hue: 0 / 360.0, saturation: 0, brightness: 0, alpha: 1.0)
     }
 
     public static var darkerTintColor: UIColor {
-        UIColor(hue: 199.0 / 360.0, saturation: 0.99, brightness: 0.67, alpha: 1.0)
+        UIColor(hue: 0 / 360.0, saturation: 0, brightness: 0, alpha: 0.5)
     }
 
     /// Help icon UIBarButtonItem

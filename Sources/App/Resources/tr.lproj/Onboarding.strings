@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Adresi El ile Girin";
 "Rle-jZ-AWa.text" = "Sensörler Yapılandırıldı";
 "SnL-y3-0HP.text" = "Ev Asistanım";
-"TEX-zW-Byk.text" = "Home Assistant Companion'ı kullanırken en iyi deneyim için lütfen aşağıdaki izinleri verin:";
+"TEX-zW-Byk.text" = "AI-Speaker'ı kullanırken en iyi deneyim için lütfen aşağıdaki izinleri verin:";
 "Tqw-iY-A2S.normalTitle" = "Daha fazla bilgi";
 "UKm-Ju-0Yr.text" = "Örneğinize bağlanırken bir hatayla karşılaştık. SSL sertifikanız geçersiz. İOS sınırlamaları nedeniyle, geçerli bir SSL sertifikası yüklenene kadar kuruluma devam edemezsiniz. Lets Encrypt veya Nabu Casa Remote UI'yi öneririz.";
 "XyQ-gy-yHY.text" = "Bağlı";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "Bağlan";
 "jrL-9x-fFX.normalTitle" = "Devam et";
 "lM3-aA-jqO.text" = "Kimlik Doğrulama";
-"mse-YA-DiV.text" = "Home Assistant Companion'a hoş geldiniz!";
+"mse-YA-DiV.text" = "AI-Speaker'a hoş geldiniz!";
 "nJr-sw-A9l.text" = "Doğrulanmış";
 "suf-pJ-Nle.normalTitle" = "Baştan başlamak";
 "wsC-f5-jbO.text" = "Artık Home Assistanta bağlanmaya ve ilk kimlik doğrulamasını yapmaya hazırız. Aşağıdaki Bağlan düğmesine dokunmak, oturum açmanız için bir tarayıcı açılmasına neden olacaktır.";

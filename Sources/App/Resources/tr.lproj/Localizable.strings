@@ -205,7 +205,7 @@
 "onboarding.connection_test_result.ssl_untrusted.description" = "SSL sertifikanız güvenilir değil. %@ .";
 "onboarding.connection_test_result.too_old.description" = "Home Assistant sürümünüzü yükseltmelisiniz.";
 "onboarding.connection_test_result.unknown_error.description" = "Bilinmeyen hata: %@";
-"onboarding.logged_out_from_move.body" = "Home Assistant iOS uygulaması kısa süre önce App Store'daki kuruluşları taşıdı. Bu hareket maalesef oturumunuzu kapatmanızı gerektirdi. \
+"onboarding.logged_out_from_move.body" = "AI-Speaker uygulaması kısa süre önce App Store'daki kuruluşları taşıdı. Bu hareket maalesef oturumunuzu kapatmanızı gerektirdi. \
 \
  Eylemleriniz ve yerel yapılandırmanız, oturum açtıktan sonra da kullanılabilir durumda olacaktır.";
 "onboarding.logged_out_from_move.continue" = "Devam et";

@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Voer handmatig een adres in";
 "Rle-jZ-AWa.text" = "Sensoren geconfigureerd";
 "SnL-y3-0HP.text" = "Mijn Home Assistant";
-"TEX-zW-Byk.text" = "Voor de beste ervaring tijdens het gebruik van Home Assistant Companion, verleent u de volgende machtigingen:";
+"TEX-zW-Byk.text" = "Voor de beste ervaring tijdens het gebruik van AI-Speaker, verleent u de volgende machtigingen:";
 "Tqw-iY-A2S.normalTitle" = "Meer informatie";
 "UKm-Ju-0Yr.text" = "Er is een fout opgetreden bij het verbinden met uw instantie. Uw SSL-certificaat is ongeldig. Vanwege iOS-beperkingen kunt u niet doorgaan met de installatie totdat een geldig SSL-certificaat is geïnstalleerd. We raden Lets Encrypt of Nabu Casa Remote UI aan.";
 "XyQ-gy-yHY.text" = "Verbonden";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "Verbind";
 "jrL-9x-fFX.normalTitle" = "Ga verder";
 "lM3-aA-jqO.text" = "Authenticatie";
-"mse-YA-DiV.text" = "Welkom bij Home Assistant Companion!";
+"mse-YA-DiV.text" = "Welkom bij AI-Speaker!";
 "nJr-sw-A9l.text" = "Geauthenticeerd";
 "suf-pJ-Nle.normalTitle" = "Opnieuw beginnen";
 "wsC-f5-jbO.text" = "We zijn nu klaar om verbinding te maken met uw Home Assistant en de eerste authenticatie te doen. Als u op de knop Verbinden hieronder tikt, wordt er een browser geopend waarop u zich kunt aanmelden.";

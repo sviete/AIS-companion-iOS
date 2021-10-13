@@ -786,7 +786,7 @@ public enum L10n {
       }
     }
     public enum LoggedOutFromMove {
-      /// The Home Assistant iOS app recently moved organizations on the App Store. This move, unfortunately, required logging you out.\n\nYour actions and local configuration will still be available after logging in.
+      /// The AI-Speaker app recently moved organizations on the App Store. This move, unfortunately, required logging you out.\n\nYour actions and local configuration will still be available after logging in.
       public static var body: String { return L10n.tr("Localizable", "onboarding.logged_out_from_move.body") }
       /// Continue
       public static var `continue`: String { return L10n.tr("Localizable", "onboarding.logged_out_from_move.continue") }

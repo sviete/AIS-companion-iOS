@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Vnesi naslov ročno";
 "Rle-jZ-AWa.text" = "Senzorji konfigurirani";
 "SnL-y3-0HP.text" = "Moj Home Assistant";
-"TEX-zW-Byk.text" = "Za najboljšo izkušnjo uporabe programa Home Assistant Companion potrdite naslednja dovoljenja:";
+"TEX-zW-Byk.text" = "Za najboljšo izkušnjo uporabe programa AI-Speaker potrdite naslednja dovoljenja:";
 "Tqw-iY-A2S.normalTitle" = "Več informacij";
 "UKm-Ju-0Yr.text" = "Med povezavo z vašim primerkom smo naleteli na napako. Vaše potrdilo SSL ni veljavno. Zaradi omejitev iOS-a ne boste mogli nadaljevati z nastavitvijo, dokler ne namestite veljavnega SSL potrdila. Priporočamo Lets Encrypt ali Nabu Casa Remote UI.";
 "XyQ-gy-yHY.text" = "Povezani";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "Poveži";
 "jrL-9x-fFX.normalTitle" = "Nadaljuj";
 "lM3-aA-jqO.text" = "Preverjanje pristnosti";
-"mse-YA-DiV.text" = "Dobrodošli v Home Assistant Companion!";
+"mse-YA-DiV.text" = "Dobrodošli v AI-Speaker!";
 "nJr-sw-A9l.text" = "Preverjeno";
 "suf-pJ-Nle.normalTitle" = "Začni znova";
 "wsC-f5-jbO.text" = "Zdaj smo pripravljeni vzpostaviti povezavo z vašim Home Assistant-om in narediti začetno preverjanje pristnosti. Če tapnete spodnji gumb Poveži, se odpre brskalnik, s katerim se boste prijavili.";

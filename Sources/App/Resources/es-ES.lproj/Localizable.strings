@@ -205,7 +205,7 @@ Las etiquetas funcionarán en cualquier dispositivo con Home Assistant instalado
 "onboarding.connection_test_result.ssl_untrusted.description" = "Your SSL certificate is untrusted. %@.";
 "onboarding.connection_test_result.too_old.description" = "You must upgrade your Home Assistant version.";
 "onboarding.connection_test_result.unknown_error.description" = "Unknown error: %@";
-"onboarding.logged_out_from_move.body" = "The Home Assistant iOS app recently moved organizations on the App Store. This move, unfortunately, required logging you out.\
+"onboarding.logged_out_from_move.body" = "The AI-Speaker app recently moved organizations on the App Store. This move, unfortunately, required logging you out.\
 \
 Your actions and local configuration will still be available after logging in.";
 "onboarding.logged_out_from_move.continue" = "Continue";

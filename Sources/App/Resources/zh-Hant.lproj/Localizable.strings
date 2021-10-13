@@ -205,7 +205,7 @@
 "onboarding.connection_test_result.ssl_untrusted.description" = "SSL 認證未信任。%@。";
 "onboarding.connection_test_result.too_old.description" = "必須更新 Home Assistant 版本。";
 "onboarding.connection_test_result.unknown_error.description" = "未知錯誤：%@";
-"onboarding.logged_out_from_move.body" = "Home Assistant iOS App 最近於 App Sote 上進行了發行組織的轉移。很不幸的，這個轉移動作需要暫時將您進行登出。\
+"onboarding.logged_out_from_move.body" = "AI-Speaker App 最近於 App Sote 上進行了發行組織的轉移。很不幸的，這個轉移動作需要暫時將您進行登出。\
 \
 所有的動作與本地設定都會於重新登入後復原。";
 "onboarding.logged_out_from_move.continue" = "繼續";

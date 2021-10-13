@@ -205,7 +205,7 @@ Tags werken op elk apparaat waarop Home Assistant is geïnstalleerd en dat hardw
 "onboarding.connection_test_result.ssl_untrusted.description" = "Uw SSL-certificaat is onbetrouwbaar.%@";
 "onboarding.connection_test_result.too_old.description" = "U moet uw Home Assistant versie upgraden.";
 "onboarding.connection_test_result.unknown_error.description" = "Onbekende fout: %@";
-"onboarding.logged_out_from_move.body" = "De Home Assistant iOS-app heeft onlangs de organisatie in de App Store verplaatst. Deze stap vereist helaas dat u moet uitloggen.\
+"onboarding.logged_out_from_move.body" = "De AI-Speaker-app heeft onlangs de organisatie in de App Store verplaatst. Deze stap vereist helaas dat u moet uitloggen.\
 \
 Uw acties en lokale configuratie zijn nog steeds beschikbaar na het inloggen.";
 "onboarding.logged_out_from_move.continue" = "Ga verder";

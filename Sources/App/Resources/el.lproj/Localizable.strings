@@ -205,7 +205,7 @@
 "onboarding.connection_test_result.ssl_untrusted.description" = "Το πιστοποιητικό SSL δεν είναι αξιόπιστο. %@ .";
 "onboarding.connection_test_result.too_old.description" = "Πρέπει να αναβαθμίσετε την έκδοση του Home Assistant.";
 "onboarding.connection_test_result.unknown_error.description" = "Άγνωστο σφάλμα: %@";
-"onboarding.logged_out_from_move.body" = "Η εφαρμογή Home Assistant iOS μετέφερε πρόσφατα οργανισμούς στο App Store. Αυτή η κίνηση, δυστυχώς, απαιτούσε την αποσύνδεσή σας.\
+"onboarding.logged_out_from_move.body" = "Η εφαρμογή AI-Speaker μετέφερε πρόσφατα οργανισμούς στο App Store. Αυτή η κίνηση, δυστυχώς, απαιτούσε την αποσύνδεσή σας.\
 \
 Οι ενέργειες και οι τοπικές ρυθμίσεις παραμέτρων θα εξακολουθούν να είναι διαθέσιμες μετά τη σύνδεση.";
 "onboarding.logged_out_from_move.continue" = "Συνέχεια";

@@ -205,7 +205,7 @@ Koder vil fungere på alle enheter med Home Assistant installert som har maskinv
 "onboarding.connection_test_result.ssl_untrusted.description" = "SSL-sertifikatet ditt er ikke klarert. %@.";
 "onboarding.connection_test_result.too_old.description" = "Du må oppgradere din Home Assistant-versjon.";
 "onboarding.connection_test_result.unknown_error.description" = "Ukjent feil: %@";
-"onboarding.logged_out_from_move.body" = "Home Assistant iOS-appen flyttet nylig organisasjoner på App Store. Dette trekket krevde dessverre at du logget deg ut.\
+"onboarding.logged_out_from_move.body" = "AI-Speaker-appen flyttet nylig organisasjoner på App Store. Dette trekket krevde dessverre at du logget deg ut.\
 \
 Handlingene og den lokale konfigurasjonen vil fortsatt være tilgjengelige etter at du har logget inn.";
 "onboarding.logged_out_from_move.continue" = "Fortsette";

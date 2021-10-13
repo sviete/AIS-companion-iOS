@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Inserisci manualmente l'indirizzo";
 "Rle-jZ-AWa.text" = "Sensori configurati";
 "SnL-y3-0HP.text" = "Il mio Home Assistant";
-"TEX-zW-Byk.text" = "Per una migliore esperienza durante l'utilizzo di Home Assistant Companion, puoi concedere le seguenti autorizzazioni:";
+"TEX-zW-Byk.text" = "Per una migliore esperienza durante l'utilizzo di AI-Speaker, puoi concedere le seguenti autorizzazioni:";
 "Tqw-iY-A2S.normalTitle" = "Più info";
 "UKm-Ju-0Yr.text" = "Si è verificato un errore durante la connessione alla tua istanza di Home Assistant. Il certificato SSL non è valido. A causa di limitazioni di iOS, non sarà possibile continuare con l'installazione fino a quando non viene installato un certificato SSL valido. Si consiglia di utilizzare Lets Encrypt o Nabu casa Remote UI.";
 "XyQ-gy-yHY.text" = "Connesso";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "Connetti";
 "jrL-9x-fFX.normalTitle" = "Chiudi";
 "lM3-aA-jqO.text" = "Autenticazione";
-"mse-YA-DiV.text" = "Benvenuto ad Home Assistant Companion!";
+"mse-YA-DiV.text" = "Benvenuto ad AI-Speaker!";
 "nJr-sw-A9l.text" = "Autenticato";
 "suf-pJ-Nle.normalTitle" = "Ricomincia";
 "wsC-f5-jbO.text" = "Siamo pronti per la connessione al tuo Home Assistant e per l'autenticazione iniziale. Toccando il pulsante Connetti qui sotto, si aprirà una pagina del browser per farti effettuare l'accesso.";

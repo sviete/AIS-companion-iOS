@@ -15,7 +15,7 @@
 "Re7-IX-23x.normalTitle" = "Indtast adresse manuelt";
 "Rle-jZ-AWa.text" = "Sensorer konfigureret";
 "SnL-y3-0HP.text" = "Min Home Assistant";
-"TEX-zW-Byk.text" = "For at opnå den bedste oplevelse, når du bruger Home Assistant Companion, bør du give følgende tilladelser:";
+"TEX-zW-Byk.text" = "For at opnå den bedste oplevelse, når du bruger AI-Speaker, bør du give følgende tilladelser:";
 "Tqw-iY-A2S.normalTitle" = "Mere information";
 "UKm-Ju-0Yr.text" = "Vi stødte på en fejl under oprettelse af forbindelse til din installation. Dit SSL-certifikat er ugyldigt. På grund af begrænsninger i iOS, kan du ikke fortsætte opsætningen, før der er installeret et gyldigt SSL-certifikat. Vi anbefaler Lets Encrypt eller Nabu Casa Remote UI.";
 "XyQ-gy-yHY.text" = "Forbundet";
@@ -27,7 +27,7 @@
 "gld-QQ-oTD.normalTitle" = "Opret forbindelse";
 "jrL-9x-fFX.normalTitle" = "Fortsæt";
 "lM3-aA-jqO.text" = "Godkendelse";
-"mse-YA-DiV.text" = "Velkommen til Home Assistant Companion!";
+"mse-YA-DiV.text" = "Velkommen til AI-Speaker!";
 "nJr-sw-A9l.text" = "Godkendt";
 "suf-pJ-Nle.normalTitle" = "Start forfra";
 "wsC-f5-jbO.text" = "Vi er nu klar til at oprette forbindelse til din Home Assistant og foretage den indledende godkendelse. Hvis du trykker på Opret forbindelse-knappen nedenfor, åbner en browser så du kan logge på.";
