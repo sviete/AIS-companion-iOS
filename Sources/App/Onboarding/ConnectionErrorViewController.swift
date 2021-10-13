@@ -3,50 +3,71 @@ import Shared
 import UIKit
 
 class ConnectionErrorViewController: UIViewController {
-    @IBOutlet var animationView: AnimationView!
-    @IBOutlet var moreInfoButton: UIButton!
-    @IBOutlet var errorLabel: UILabel!
-    @IBOutlet var goBackButton: UIButton!
+    private var animationView: AnimationView?
+    private var moreInfoButton: UIButton?
+    private var goBackButton: UIButton?
 
-    var error: Error!
+    let error: Error
+    init(error: Error) {
+        self.error = error
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let navVC = navigationController as? OnboardingNavigationViewController {
-            navVC.styleButton(moreInfoButton)
-            navVC.styleButton(goBackButton)
-        }
+        view.backgroundColor = Current.style.onboardingBackground
 
-        animationView.animation = Animation.named("error")
-        animationView.loopMode = .playOnce
-        animationView.contentMode = .scaleAspectFill
-        animationView.play()
+        let (_, stackView, equalSpacers) = UIView.contentStackView(in: view, scrolling: true)
 
-        errorLabel.text = error.localizedDescription
+        stackView.addArrangedSubview(with(UILabel()) {
+            $0.text = L10n.Onboarding.ConnectionError.title
+            Current.style.onboardingTitle($0)
+        })
 
-        if let error = error as? ConnectionTestResult {
-            if error.kind == .sslExpired || error.kind == .sslUntrusted {
-                let text = L10n.Onboarding.ConnectionTestResult.SslContainer.description(error.localizedDescription)
-                errorLabel.text = text
-            }
-        } else {
-            moreInfoButton.isHidden = true
-        }
+        stackView.addArrangedSubview(with(AnimationView()) {
+            $0.animation = Animation.named("error")
+            $0.loopMode = .playOnce
+            $0.play()
+        })
+
+        stackView.addArrangedSubview(with(UITextView()) {
+            $0.isScrollEnabled = false
+            $0.isEditable = false
+            $0.isSelectable = true
+            $0.backgroundColor = .clear
+            $0.textContainer.lineFragmentPadding = 0
+            $0.textContainerInset = .zero
+            $0.text = error.localizedDescription
+            $0.font = .preferredFont(forTextStyle: .body)
+            $0.textColor = Current.style.onboardingLabel
+        })
+
+        stackView.addArrangedSubview(equalSpacers.next())
+        stackView.addArrangedSubview(with(UIButton(type: .custom)) {
+            $0.setTitle(L10n.Onboarding.ConnectionError.moreInfoButton, for: .normal)
+            $0.isHidden = !(error is ConnectionTestResult)
+            $0.addTarget(self, action: #selector(moreInfoTapped(_:)), for: .touchUpInside)
+            Current.style.onboardingButtonPrimary($0)
+        })
     }
 
-    /*
-     // MARK: - Navigation
+    private func documentationURL(for error: Error) -> URL {
+        var string = "https://companion.home-assistant.io/docs/troubleshooting/errors"
 
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-         // Get the new view controller using segue.destination.
-         // Pass the selected object to the new view controller.
-     }
-     */
+        if let error = error as? ConnectionTestResult {
+            string += "#\(error.kind.rawValue)"
+        }
 
-    @IBAction func moreInfoTapped(_ sender: UIButton) {
-        guard let error = self.error as? ConnectionTestResult else { return }
-        openURLInBrowser(error.DocumentationURL, self)
+        return URL(string: string)!
+    }
+
+    @objc private func moreInfoTapped(_ sender: UIButton) {
+        openURLInBrowser(documentationURL(for: error), self)
     }
 }
