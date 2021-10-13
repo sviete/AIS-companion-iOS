@@ -896,7 +896,7 @@ public enum L10n {
     public enum Welcome {
       /// This app connects to your Home Assistant server and allows integrating data about you and your phone.\n\nHome Assistant is free and open source home automation software with a focus on local control and privacy.
       public static var description: String { return L10n.tr("Localizable", "onboarding.welcome.description") }
-      /// Welcome to Home Assistant %@!
+      /// Welcome to AI-Speaker.com %@!
       public static func title(_ p1: Any) -> String {
         return L10n.tr("Localizable", "onboarding.welcome.title", String(describing: p1))
       }

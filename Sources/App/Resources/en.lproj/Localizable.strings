@@ -730,7 +730,7 @@ Your actions and local configuration will still be available after logging in.";
 "widgets.open_page.title" = "Open Page";
 "yes_label" = "Yes";
 /* parameter is replaced with iOS or macOS (or other future OSes) */
-"onboarding.welcome.title" = "Welcome to Home Assistant %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker.com %@!";
 "onboarding.welcome.description" = "This app connects to your Home Assistant server and allows integrating data about you and your phone.\n\nHome Assistant is free and open source home automation software with a focus on local control and privacy.";
 /* verb, button text */
 "continue_label" = "Continue";
