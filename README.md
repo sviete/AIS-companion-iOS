@@ -1,4 +1,4 @@
-Home Assistant for Apple Platforms
+AI-Speaker for Apple Platforms
 =================
 
 [![TestFlight Beta invite](https://img.shields.io/badge/TestFlight-Beta-blue.svg)](https://www.home-assistant.io/ios/beta/)
