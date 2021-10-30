@@ -14,6 +14,7 @@ public enum NeededType {
 
 public enum OnboardingState {
     case complete
+    case didConnect
     case needed(NeededType)
 }
 
@@ -45,5 +46,9 @@ public class OnboardingStateObservation {
 
     public func needed(_ type: NeededType) {
         notify(for: .needed(type))
+    }
+
+    public func didConnect() {
+        notify(for: .didConnect)
     }
 }

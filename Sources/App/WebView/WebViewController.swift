@@ -241,7 +241,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         userActivity?.resignCurrent()
     }
 
-    init(restorationActivity: NSUserActivity?) {
+    init(restorationActivity: NSUserActivity?, shouldLoadImmediately: Bool = false) {
         super.init(nibName: nil, bundle: nil)
 
         userActivity = with(NSUserActivity(activityType: "\(Constants.BundleID).frontend")) {
@@ -250,6 +250,11 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
 
         if let url = restorationActivity?.userInfo?[RestorableStateKey.lastURL.rawValue] as? URL {
             self.initialURL = url
+        }
+
+        if shouldLoadImmediately {
+            loadViewIfNeeded()
+            loadActiveURLIfNeeded()
         }
     }
 
@@ -401,10 +406,8 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
             switch webView.traitCollection.userInterfaceIdiom {
             case .carPlay, .phone, .tv:
                 return .actionSheet
-            #if compiler(>=5.3)
             case .mac:
                 return .alert
-            #endif
             case .pad, .unspecified:
                 // without a touch to tell us where, an action sheet in the middle of the screen isn't great
                 return .alert
@@ -486,7 +489,6 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         }
     }
 
-    #if compiler(>=5.5) && !targetEnvironment(macCatalyst)
     @available(iOS 15, *)
     func webView(
         _ webView: WKWebView,
@@ -497,7 +499,6 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
     ) {
         decisionHandler(.grant)
     }
-    #endif
 
     @objc private func connectionInfoDidChange() {
         DispatchQueue.main.async { [self] in

@@ -9,7 +9,7 @@
 "6ozAdN" = "Camera Image";
 "7boBzr" = "Call ${service} with data";
 "8BMgur" = "Done";
-"8skKro" = "Which actions?";
+"8skKro" = "Quali azioni?";
 "B4bXyc" = "Done";
 "CmlkE4" = "shortcut_event";
 "DFWJB8" = "Apri ${page}";
@@ -21,7 +21,7 @@
 "FtQqoU" = "Location updated";
 "HCM8Oe" = "Fire ${eventName} with data";
 "HSLcG7" = "Event Name";
-"HoH8wg" = "Actions";
+"HoH8wg" = "Azioni";
 "KHH48D" = "Failed: Home Assistant is not currently reachable";
 "KJS2jk" = "Failed: ${error}";
 "KM7mXC" = "Action";
@@ -54,7 +54,7 @@
 "ZmUm9Q" = "What template would you like to render?";
 "Zoqsph" = "Pagina";
 "cK9jdK" = "Failed: ${error}";
-"cLmTme" = "Action";
+"cLmTme" = "Azione";
 "cuflz3" = "Failed: Home Assistant is not currently reachable";
 "dFHPYK" = "Performed ${action}";
 "eObn2i" = "Pagina";
@@ -88,12 +88,12 @@
 "oIWFyR" = "Failed: ${error}";
 "onq5yE" = "Impossibile chiamare il servizio, errore ${error}";
 "pQhTjo" = "Failed: Home Assistant is not currently reachable";
-"pjQR7t" = "Update Sensors";
+"pjQR7t" = "Aggiorna sensori";
 "qYpzmu" = "Quali pagine?";
 "qayMH6" = "Call Service";
 "qzje4k" = "Failed: ${error}";
 "r32M7N" = "Failed: ${error}";
-"r6LXFe" = "Failed";
+"r6LXFe" = "Fallito";
 "rFSNpu" = "Done";
 "rOlW1x" = "What location do you want to send?";
 "sNFoWe" = "Which camera?";

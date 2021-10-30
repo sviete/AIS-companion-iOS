@@ -16,6 +16,7 @@ class WebViewWindowController {
     var webViewControllerPromise: Guarantee<WebViewController>
 
     private var webViewControllerSeal: (WebViewController) -> Void
+    private var onboardingPreloadWebViewController: WebViewController?
 
     init(window: UIWindow, restorationActivity: NSUserActivity?) {
         self.window = window
@@ -49,15 +50,6 @@ class WebViewWindowController {
         }
     }
 
-    var requiresOnboarding: Bool {
-        if Current.settingsStore.tokenInfo == nil || Current.settingsStore.connectionInfo == nil {
-            Current.Log.info("requiring onboarding due to auth token or connection info")
-            return true
-        }
-
-        return false
-    }
-
     private func webViewNavigationController(rootViewController: UIViewController? = nil) -> UINavigationController {
         let navigationController = UINavigationController()
         navigationController.setNavigationBarHidden(true, animated: false)
@@ -74,9 +66,9 @@ class WebViewWindowController {
     }
 
     func setup() {
-        if requiresOnboarding {
-            Current.Log.info("showing onboarding")
-            updateRootViewController(to: OnboardingNavigationViewController(onboardingStyle: .initial))
+        if let style = OnboardingNavigationViewController.requiredOnboardingStyle {
+            Current.Log.info("showing onboarding \(style)")
+            updateRootViewController(to: OnboardingNavigationViewController(onboardingStyle: style))
         } else {
             if let rootController = window.rootViewController, !rootController.children.isEmpty {
                 Current.Log.info("state restoration loaded controller, not creating a new one")
@@ -217,11 +209,21 @@ extension WebViewWindowController: OnboardingStateObserver {
 
                 controller.present(alert, animated: true, completion: nil)
             }
+        case .didConnect:
+            onboardingPreloadWebViewController = WebViewController(
+                restorationActivity: restorationActivity,
+                shouldLoadImmediately: true
+            )
         case .complete:
-            updateRootViewController(to: webViewNavigationController(rootViewController: WebViewController(
-                restorationActivity: restorationActivity
-            )))
+            let controller: WebViewController
 
+            if let preload = onboardingPreloadWebViewController {
+                controller = preload
+            } else {
+                controller = WebViewController(restorationActivity: restorationActivity, shouldLoadImmediately: true)
+            }
+
+            updateRootViewController(to: webViewNavigationController(rootViewController: controller))
             restorationActivity = nil
         }
     }

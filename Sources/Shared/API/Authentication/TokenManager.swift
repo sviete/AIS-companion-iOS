@@ -54,16 +54,14 @@ public class TokenManager {
     /// an auth token.
     /// - Parameter code: Code acquired by authenticating with an authenticaiton provider.
     public func initialTokenWithCode(_ code: String) -> Promise<TokenInfo> {
-        authenticationAPI.fetchTokenWithCode(code).then { tokenInfo -> Promise<TokenInfo> in
+        authenticationAPI.fetchTokenWithCode(code).get { tokenInfo in
             self.tokenInfo = tokenInfo
-            Current.settingsStore.tokenInfo = tokenInfo
-            return Promise.value(tokenInfo)
         }
     }
 
     // Request the server revokes the current token.
     public func revokeToken() -> Promise<Bool> {
-        guard let tokenInfo = self.tokenInfo else {
+        guard let tokenInfo = tokenInfo else {
             return Promise(error: TokenError.tokenUnavailable)
         }
 
