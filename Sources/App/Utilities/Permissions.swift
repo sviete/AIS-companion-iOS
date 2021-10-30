@@ -79,10 +79,8 @@ extension UNAuthorizationStatus {
             return PermissionStatus.restricted
         case .denied:
             return PermissionStatus.denied
-        #if compiler(>=5.3)
         case .ephemeral:
             return PermissionStatus.authorized
-        #endif
         case .authorized:
             return PermissionStatus.authorized
         @unknown default:
@@ -269,6 +267,12 @@ public enum PermissionType {
                     completionHandler(granted, status)
                 }
             }
+
+            if Current.isCatalyst {
+                // we likely will not get a completion until the user responds to the notification
+                // but we don't wanna delay onboarding for this
+                completionHandler(status == .authorized, status)
+            }
         case .focus:
             Current.focusStatus.requestAuthorization().done { status in
                 completionHandler(status == .authorized, status.genericStatus)
@@ -290,12 +294,10 @@ public extension UNAuthorizationOptions {
             opts.insert(.announcement)
         }
 
-        #if compiler(>=5.5) && !targetEnvironment(macCatalyst)
         if #available(iOS 15, *) {
             // this is also deprecated in iOS 15 in favor of the entitlement, but it does seem to be required in b1
             opts.insert(.timeSensitive)
         }
-        #endif
 
         return opts
     }

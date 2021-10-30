@@ -8,14 +8,26 @@ AI-Speaker for Apple Platforms
 
 ## Getting Started
 
-Home Assistant uses Bundler, Homebrew and Cocoapods to manage build dependencies. You'll need Xcode 13.0 (or later) which you can download from the [App Store](https://developer.apple.com/download/). You can get the app running using the following commands:
+Home Assistant uses Bundler, Homebrew and Cocoapods to manage build dependencies. You'll need Xcode 13.1 (or later) which you can download from the [App Store](https://developer.apple.com/download/). You can get the app running using the following commands:
 
 ```bash
 git clone https://github.com/home-assistant/iOS.git
 cd iOS
-# if you don't have bundler already, [sudo] gem install bundler
-# if you don't have homebrew already, install from https://brew.sh
-brew bundle
+
+# you must do one of the following, but you do not need to do all of them:
+
+## install cocoapods via homebrew, use that
+brew install cocoapods
+pod install --repo-update
+
+## install ruby via homebrew, use that
+brew install ruby@2.7
+/usr/local/opt/ruby@2.7/bin/bundle install
+/usr/local/opt/ruby@2.7/bin/bundle exec pod install --repo-update
+
+## install ruby via rbenv, use that
+brew install rbenv ruby-build
+rbenv install
 bundle install
 bundle exec pod install --repo-update
 ```
