@@ -6492,7 +6492,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "WatchIcon${BUNDLE_ID_SUFFIX}";
-				CODE_SIGN_ENTITLEMENTS = Configuration/Entitlements/WatchApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZN72L4KWA7;
@@ -6969,7 +6968,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "WatchIcon${BUNDLE_ID_SUFFIX}";
-				CODE_SIGN_ENTITLEMENTS = Configuration/Entitlements/WatchApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZN72L4KWA7;
