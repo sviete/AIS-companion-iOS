@@ -240,7 +240,7 @@ Les etiquetes funcionaran en qualsevol dispositiu amb Home Assistant instal·lat
 "onboarding.welcome.description" = "This app connects to your Home Assistant server and allows integrating data about you and your phone.\
 \
 Home Assistant is free and open source home automation software with a focus on local control and privacy.";
-"onboarding.welcome.title" = "Welcome to Home Assistant %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker %@!";
 "open_label" = "Obrir";
 "preview_output" = "Previsualització de la sortida";
 "retry_label" = "Reintentar";

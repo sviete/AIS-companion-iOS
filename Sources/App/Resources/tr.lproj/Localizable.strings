@@ -240,7 +240,7 @@
 "onboarding.welcome.description" = "This app connects to your Home Assistant server and allows integrating data about you and your phone.\
 \
 Home Assistant is free and open source home automation software with a focus on local control and privacy.";
-"onboarding.welcome.title" = "Welcome to Home Assistant %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker %@!";
 "open_label" = "Açık";
 "preview_output" = "Önizleme Çıktısı";
 "retry_label" = "Yeniden dene";

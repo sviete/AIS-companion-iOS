@@ -240,7 +240,7 @@ Tagy budou fungovat na jakémkoliv zařízení s Home Assistantem a hardwarovou 
 "onboarding.welcome.description" = "This app connects to your Home Assistant server and allows integrating data about you and your phone.\
 \
 Home Assistant is free and open source home automation software with a focus on local control and privacy.";
-"onboarding.welcome.title" = "Welcome to Home Assistant %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker %@!";
 "open_label" = "Otevřít";
 "preview_output" = "Preview Output";
 "retry_label" = "Opakovat";

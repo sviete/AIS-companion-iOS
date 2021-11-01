@@ -240,7 +240,7 @@ Tags will work on any device with Home Assistant installed which has hardware su
 "onboarding.welcome.description" = "This app connects to your Home Assistant server and allows integrating data about you and your phone.\
 \
 Home Assistant is free and open source home automation software with a focus on local control and privacy.";
-"onboarding.welcome.title" = "Welcome to Home Assistant %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker %@!";
 "open_label" = "Abrir";
 "preview_output" = "Preview Output";
 "retry_label" = "Reintentar";

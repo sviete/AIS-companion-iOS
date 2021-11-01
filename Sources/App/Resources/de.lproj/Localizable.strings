@@ -240,7 +240,7 @@ Tags funktionieren auf jedem Gerät mit Hardwareunterstützung zum Lesen von NFC
 "onboarding.welcome.description" = "This app connects to your Home Assistant server and allows integrating data about you and your phone.\
 \
 Home Assistant is free and open source home automation software with a focus on local control and privacy.";
-"onboarding.welcome.title" = "Welcome to Home Assistant %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker %@!";
 "open_label" = "Öffnen";
 "preview_output" = "Vorschau der Ausgabe";
 "retry_label" = "Erneut versuchen";
