@@ -372,6 +372,7 @@
 		11DE9F3A25B614EB0081C0ED /* Application.xib in Resources */ = {isa = PBXBuildFile; fileRef = 11DE9F3925B614EB0081C0ED /* Application.xib */; };
 		11DE9F9625B6173D0081C0ED /* AIS Launcher.app in Resources */ = {isa = PBXBuildFile; fileRef = 11DE9D8325B6103C0081C0ED /* AIS Launcher.app */; platformFilter = maccatalyst; };
 		11DE9FBE25B6186E0081C0ED /* AIS Launcher.app in Embed Mac Launcher */ = {isa = PBXBuildFile; fileRef = 11DE9D8325B6103C0081C0ED /* AIS Launcher.app */; platformFilter = maccatalyst; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		11DE9FBE25B6186E0081C0ED /* Home Assistant Launcher.app in Embed Mac Launcher */ = {isa = PBXBuildFile; fileRef = 11DE9D8325B6103C0081C0ED /* Home Assistant Launcher.app */; platformFilter = maccatalyst; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		11E1639A250B1B760076D612 /* OnboardingStateObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E16399250B1B760076D612 /* OnboardingStateObservation.swift */; };
 		11E1639B250B1B760076D612 /* OnboardingStateObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E16399250B1B760076D612 /* OnboardingStateObservation.swift */; };
 		11E5CF8124BBCE1B009AC30F /* ProcessInfo+BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E5CF8024BBCE1B009AC30F /* ProcessInfo+BackgroundTask.swift */; };
