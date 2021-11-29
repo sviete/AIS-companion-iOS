@@ -76,7 +76,9 @@ public extension Realm {
         // 15 - 2021-03-21 v2021.4 (scene properties)
         // 16 - 2021-04-12 v2021.5 (accuracy authorization on location history entries)
         // 17 - 2021-09-20 v2021.10 (added notification action key icon)
-        let schemaVersion: UInt64 = 17
+        // 18 - 2021-11-15 v2021.12 (added server identifier keys to various models)
+        // 19 - 2021-11-27 v2021.12 (zone property renames)
+        let schemaVersion: UInt64 = 19
         let mdiVersion = UInt64(MDIMigration.migrationNumber)
 
         let config = Realm.Configuration(
@@ -149,6 +151,37 @@ public extension Realm {
 
                 if oldVersion < 17 {
                     // nothing, it added an optional
+                }
+
+                if oldVersion < 18 {
+                    // set the serverIdentifier to the historic value for anything synced earlier
+                    func migrate<T: Object & UpdatableModel>(_ modelType: T.Type) {
+                        migration.enumerateObjects(ofType: modelType.className()) { _, newObject in
+                            newObject?[modelType.serverIdentifierKey()] = Server.historicId.rawValue
+                        }
+                    }
+
+                    migrate(NotificationCategory.self)
+                    migrate(RLMScene.self)
+                    migrate(RLMZone.self)
+                    migrate(Action.self)
+
+                    migration.enumerateObjects(ofType: WatchComplication.className()) { _, newObject in
+                        newObject?["serverIdentifier"] = Server.historicId.rawValue
+                    }
+                }
+
+                if oldVersion < 19 {
+                    migration.renameProperty(onType: RLMZone.className(), from: "ID", to: "entityId")
+
+                    migration.enumerateObjects(ofType: RLMZone.className()) { oldObject, newObject in
+                        if let oldId = oldObject?["ID"] as? String,
+                           let serverId = newObject?["serverIdentifier"] as? String {
+                            let newId = RLMZone.primaryKey(sourceIdentifier: oldId, serverIdentifier: serverId)
+                            Current.Log.info("change \(oldId) + \(serverId) to \(newId)")
+                            newObject?["identifier"] = newId
+                        }
+                    }
                 }
 
                 do {
