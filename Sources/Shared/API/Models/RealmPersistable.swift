@@ -5,12 +5,15 @@ import RealmSwift
 protocol UpdatableModel {
     associatedtype Source: UpdatableModelSource
 
-    static func didUpdate(objects: [Self], realm: Realm)
-    static func willDelete(objects: [Self], realm: Realm)
+    static func didUpdate(objects: [Self], server: Server, realm: Realm)
+    static func willDelete(objects: [Self], server: Server, realm: Realm)
 
     static func primaryKey() -> String? // from realm, we use
+    static func serverIdentifierKey() -> String
     static var updateEligiblePredicate: NSPredicate { get }
-    func update(with object: Source, using realm: Realm) -> Bool
+
+    static func primaryKey(sourceIdentifier: String, serverIdentifier: String) -> String
+    func update(with object: Source, server: Server, using realm: Realm) -> Bool
 }
 
 extension UpdatableModel {
