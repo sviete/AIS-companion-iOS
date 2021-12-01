@@ -701,6 +701,12 @@ public enum L10n {
       public static func title(_ p1: Any) -> String {
         return L10n.tr("Localizable", "onboarding.connect.title", String(describing: p1))
       }
+      public enum MacSafariWarning {
+        /// Try restarting Safari if the login form does not open.
+        public static var message: String { return L10n.tr("Localizable", "onboarding.connect.mac_safari_warning.message") }
+        /// Launching Safari
+        public static var title: String { return L10n.tr("Localizable", "onboarding.connect.mac_safari_warning.title") }
+      }
     }
     public enum ConnectionError {
       /// More Info
@@ -873,6 +879,8 @@ public enum L10n {
     public enum ConnectionSection {
       /// Activate
       public static var activateServer: String { return L10n.tr("Localizable", "settings.connection_section.activate_server") }
+      /// Quickly activate using a two-finger swipe left or right when viewing a server.
+      public static var activateSwipeHint: String { return L10n.tr("Localizable", "settings.connection_section.activate_swipe_hint") }
       /// Add Server
       public static var addServer: String { return L10n.tr("Localizable", "settings.connection_section.add_server") }
       /// All Servers
