@@ -1,16 +1,19 @@
 import Foundation
 import HAKit
+import SharedPush
 import UserNotifications
+import Version
 
 extension HATypedSubscription {
     static func localPush(
-        webhookID: String
+        webhookID: String,
+        serverVersion: Version
     ) -> HATypedSubscription<LocalPushEvent> {
         var data: [String: Any] = [
             "webhook_id": webhookID,
         ]
 
-        if let version = Current.serverVersion(), version >= .localPushConfirm {
+        if serverVersion >= .localPushConfirm {
             data["support_confirm"] = true
         }
 
@@ -40,15 +43,19 @@ struct LocalPushEvent: HADataDecodable {
 
     var confirmID: String?
     var identifier: String
-    var content: UNNotificationContent
+    var contentWithoutServer: UNNotificationContent
 
     init(data: HAData) throws {
         guard case let .dictionary(value) = data else {
             throw LocalPushEventError.invalidType
         }
 
-        let (headers, payload) = NotificationParserLegacy.result(from: value)
-        self.init(headers: headers, payload: payload)
+        let parser = LegacyNotificationParserImpl(pushSource: "local")
+        let result = parser.result(from: value, defaultRegistrationInfo: [
+            "os_version": Current.device.systemVersion(),
+            "app_id": "io.robbie.HomeAssistant",
+        ])
+        self.init(headers: result.headers, payload: result.payload)
         self.confirmID = data.decode("hass_confirm_id", fallback: nil)
     }
 
@@ -58,7 +65,17 @@ struct LocalPushEvent: HADataDecodable {
         } else {
             self.identifier = UUID().uuidString
         }
-        self.content = Self.content(from: payload)
+        self.contentWithoutServer = Self.content(from: payload)
+    }
+
+    func content(server: Server) -> UNNotificationContent {
+        // swiftlint:disable:next force_cast
+        let content = contentWithoutServer.mutableCopy() as! UNMutableNotificationContent
+
+        content.userInfo["webhook_id"] = server.info.connection.webhookID
+
+        // swiftlint:disable:next force_cast
+        return content.copy() as! UNNotificationContent
     }
 
     // swiftlint:disable:next cyclomatic_complexity

@@ -55,10 +55,6 @@ class SettingsDetailViewController: HAFormViewController, TypedRowControllerType
         case "general":
             title = L10n.SettingsDetails.General.title
 
-            if #available(iOS 14, *), traitCollection.userInterfaceIdiom == .mac, !Current.isDebug {
-                form +++ Section(SettingsViewController.serversContents())
-            }
-
             form
                 +++ Section {
                     $0.hidden = .isCatalyst
@@ -143,7 +139,7 @@ class SettingsDetailViewController: HAFormViewController, TypedRowControllerType
                 <<< ButtonRow { row in
                     row.title = L10n.SettingsDetails.General.MenuBarText.title
                     row.cellStyle = .value1
-                    row.value = Current.settingsStore.menuItemTemplate
+                    row.value = Current.settingsStore.menuItemTemplate?.template
                     row.displayValueFor = { $0 }
                     row.hidden = .function(["locationVisibility"], { form in
                         if let row = form
@@ -154,12 +150,17 @@ class SettingsDetailViewController: HAFormViewController, TypedRowControllerType
                         }
                     })
                     row.presentationMode = .show(controllerProvider: .callback(builder: {
-                        TemplateEditViewController(
-                            initial: Current.settingsStore.menuItemTemplate,
-                            saveHandler: { Current.settingsStore.menuItemTemplate = $0 }
-                        )
+                        if let current = Current.settingsStore.menuItemTemplate {
+                            return TemplateEditViewController(
+                                server: current.server,
+                                initial: current.template,
+                                saveHandler: { Current.settingsStore.menuItemTemplate = ($0, $1) }
+                            )
+                        } else {
+                            return UIViewController()
+                        }
                     }), onDismiss: { [weak self, row] _ in
-                        row.value = Current.settingsStore.menuItemTemplate
+                        row.value = Current.settingsStore.menuItemTemplate?.template
                         self?.navigationController?.popViewController(animated: true)
                     })
                 }
@@ -255,8 +256,11 @@ class SettingsDetailViewController: HAFormViewController, TypedRowControllerType
                         row.value = true
                         row.updateCell()
 
-                        Current.api.then { api in
-                            api.manuallyUpdate(applicationState: UIApplication.shared.applicationState)
+                        firstly {
+                            HomeAssistantAPI.manuallyUpdate(
+                                applicationState: UIApplication.shared.applicationState,
+                                type: .userRequested
+                            )
                         }.ensure {
                             row.value = false
                             row.updateCell()
@@ -309,11 +313,11 @@ class SettingsDetailViewController: HAFormViewController, TypedRowControllerType
                     Current.settingsStore.locationSources.pushNotifications = row.value ?? true
                 })
 
-            let zoneEntities = realm.objects(RLMZone.self).map { $0 }
+            let zoneEntities = realm.objects(RLMZone.self)
             for zone in zoneEntities {
                 form
                     +++ Section(header: zone.Name, footer: "") {
-                        $0.tag = zone.ID
+                        $0.tag = zone.identifier
                     }
                     <<< SwitchRow {
                         $0.title = L10n.SettingsDetails.Location.Zones.EnterExitTracked.title
@@ -391,30 +395,28 @@ class SettingsDetailViewController: HAFormViewController, TypedRowControllerType
                 }
             }
 
-            if let version = Current.serverVersion(), version >= .actionSyncing {
-                form +++ RealmSection(
-                    header: L10n.SettingsDetails.Actions.ActionsSynced.header,
-                    footer: nil,
-                    collection: AnyRealmCollection(actions.filter("isServerControlled == true")),
-                    emptyRows: [
-                        LabelRow {
-                            $0.title = L10n.SettingsDetails.Actions.ActionsSynced.empty
-                            $0.disabled = true
-                        },
-                    ], getter: { [weak self] in self?.getActionRow($0) },
-                    didUpdate: { section, collection in
-                        if collection.isEmpty {
-                            section.footer = HeaderFooterView(
-                                title: L10n.SettingsDetails.Actions.ActionsSynced.footerNoActions
-                            )
-                        } else {
-                            section.footer = HeaderFooterView(
-                                title: L10n.SettingsDetails.Actions.ActionsSynced.footer
-                            )
-                        }
+            form +++ RealmSection(
+                header: L10n.SettingsDetails.Actions.ActionsSynced.header,
+                footer: nil,
+                collection: AnyRealmCollection(actions.filter("isServerControlled == true")),
+                emptyRows: [
+                    LabelRow {
+                        $0.title = L10n.SettingsDetails.Actions.ActionsSynced.empty
+                        $0.disabled = true
+                    },
+                ], getter: { [weak self] in self?.getActionRow($0) },
+                didUpdate: { section, collection in
+                    if collection.isEmpty {
+                        section.footer = HeaderFooterView(
+                            title: L10n.SettingsDetails.Actions.ActionsSynced.footerNoActions
+                        )
+                    } else {
+                        section.footer = HeaderFooterView(
+                            title: L10n.SettingsDetails.Actions.ActionsSynced.footer
+                        )
                     }
-                )
-            }
+                }
+            )
 
             let scenes = realm.objects(RLMScene.self).sorted(byKeyPath: RLMScene.positionKeyPath)
 
@@ -454,15 +456,18 @@ class SettingsDetailViewController: HAFormViewController, TypedRowControllerType
                 +++ Section(
                     header: nil,
                     footer: L10n.SettingsDetails.Privacy.CrashReporting.description
-                        + "\n\n" + L10n.SettingsDetails.Privacy.CrashReporting.sentry
-                )
+                ) {
+                    $0.hidden = .init(booleanLiteral: !Current.crashReporter.hasCrashReporter)
+                }
                 <<< SwitchRow {
                     $0.title = L10n.SettingsDetails.Privacy.CrashReporting.title
                     $0.value = Current.settingsStore.privacy.crashes
                 }.onChange { row in
                     Current.settingsStore.privacy.crashes = row.value ?? true
                 }
-                +++ Section(header: nil, footer: L10n.SettingsDetails.Privacy.Analytics.genericDescription)
+                +++ Section(header: nil, footer: L10n.SettingsDetails.Privacy.Analytics.genericDescription) {
+                    $0.hidden = .init(booleanLiteral: !Current.crashReporter.hasAnalytics)
+                }
                 <<< SwitchRow {
                     $0.title = L10n.SettingsDetails.Privacy.Analytics.genericTitle
                     $0.value = Current.settingsStore.privacy.analytics

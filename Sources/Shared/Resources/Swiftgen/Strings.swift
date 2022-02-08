@@ -42,6 +42,10 @@ public enum L10n {
   public static var openLabel: String { return L10n.tr("Localizable", "open_label") }
   /// Preview Output
   public static var previewOutput: String { return L10n.tr("Localizable", "preview_output") }
+  /// Requires %@ or later.
+  public static func requiresVersion(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "requires_version", String(describing: p1))
+  }
   /// Retry
   public static var retryLabel: String { return L10n.tr("Localizable", "retry_label") }
   /// Success
@@ -179,6 +183,16 @@ public enum L10n {
       public static var cancel: String { return L10n.tr("Localizable", "alerts.confirm.cancel") }
       /// OK
       public static var ok: String { return L10n.tr("Localizable", "alerts.confirm.ok") }
+    }
+    public enum Deprecations {
+      public enum NotificationCategory {
+        /// You must migrate to actions defined in the notification itself before %1$@.
+        public static func message(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "alerts.deprecations.notification_category.message", String(describing: p1))
+        }
+        /// Notification Categories are deprecated
+        public static var title: String { return L10n.tr("Localizable", "alerts.deprecations.notification_category.title") }
+      }
     }
     public enum OpenUrlFromDeepLink {
       /// Open URL (%@) from deep link?
@@ -361,6 +375,11 @@ public enum L10n {
       /// Operation could not be performed.
       public static var updateNotPossible: String { return L10n.tr("Localizable", "ha_api.api_error.update_not_possible") }
     }
+  }
+
+  public enum Intents {
+    /// Select a server before picking this value.
+    public static var serverRequiredForValue: String { return L10n.tr("Localizable", "intents.server_required_for_value") }
   }
 
   public enum LocationChangeNotification {
@@ -702,6 +721,12 @@ public enum L10n {
       public static func title(_ p1: Any) -> String {
         return L10n.tr("Localizable", "onboarding.connect.title", String(describing: p1))
       }
+      public enum MacSafariWarning {
+        /// Try restarting Safari if the login form does not open.
+        public static var message: String { return L10n.tr("Localizable", "onboarding.connect.mac_safari_warning.message") }
+        /// Launching Safari
+        public static var title: String { return L10n.tr("Localizable", "onboarding.connect.mac_safari_warning.title") }
+      }
     }
     public enum ConnectionError {
       /// More Info
@@ -725,6 +750,10 @@ public enum L10n {
       public enum ClientCertificate {
         /// Client Certificate Authentication is not supported.
         public static var description: String { return L10n.tr("Localizable", "onboarding.connection_test_result.client_certificate.description") }
+      }
+      public enum LocalNetworkPermission {
+        /// "Local Network" privacy permission may have been denied. You can change this in the system Settings app.
+        public static var description: String { return L10n.tr("Localizable", "onboarding.connection_test_result.local_network_permission.description") }
       }
     }
     public enum DeviceNameCheck {
@@ -872,8 +901,14 @@ public enum L10n {
 
   public enum Settings {
     public enum ConnectionSection {
+      /// Activate
+      public static var activateServer: String { return L10n.tr("Localizable", "settings.connection_section.activate_server") }
+      /// Quickly activate using a three-finger swipe left or right when viewing a server.
+      public static var activateSwipeHint: String { return L10n.tr("Localizable", "settings.connection_section.activate_swipe_hint") }
       /// Add Server
       public static var addServer: String { return L10n.tr("Localizable", "settings.connection_section.add_server") }
+      /// All Servers
+      public static var allServers: String { return L10n.tr("Localizable", "settings.connection_section.all_servers") }
       /// When connecting via Cloud, the External URL will not be used. You do not need to configure one unless you want to disable Cloud.
       public static var cloudOverridesExternal: String { return L10n.tr("Localizable", "settings.connection_section.cloud_overrides_external") }
       /// Connected via
@@ -892,6 +927,14 @@ public enum L10n {
       public static var ssidPermissionAndAccuracyMessage: String { return L10n.tr("Localizable", "settings.connection_section.ssid_permission_and_accuracy_message") }
       /// Accessing SSIDs in the background requires 'Always' location permission. Tap here to change your settings.
       public static var ssidPermissionMessage: String { return L10n.tr("Localizable", "settings.connection_section.ssid_permission_message") }
+      public enum DeleteServer {
+        /// Are you sure you wish to delete this server?
+        public static var message: String { return L10n.tr("Localizable", "settings.connection_section.delete_server.message") }
+        /// Deleting Server…
+        public static var progress: String { return L10n.tr("Localizable", "settings.connection_section.delete_server.progress") }
+        /// Delete Server
+        public static var title: String { return L10n.tr("Localizable", "settings.connection_section.delete_server.title") }
+      }
       public enum Errors {
         /// You cannot remove only available URL.
         public static var cannotRemoveLastUrl: String { return L10n.tr("Localizable", "settings.connection_section.errors.cannot_remove_last_url") }
@@ -932,9 +975,31 @@ public enum L10n {
         /// MyFunnyNetworkName
         public static var placeholder: String { return L10n.tr("Localizable", "settings.connection_section.internal_url_ssids.placeholder") }
       }
+      public enum LocationSendType {
+        /// Location Sent
+        public static var title: String { return L10n.tr("Localizable", "settings.connection_section.location_send_type.title") }
+        public enum Setting {
+          /// Exact
+          public static var exact: String { return L10n.tr("Localizable", "settings.connection_section.location_send_type.setting.exact") }
+          /// Never
+          public static var never: String { return L10n.tr("Localizable", "settings.connection_section.location_send_type.setting.never") }
+          /// Zone Name Only
+          public static var zoneOnly: String { return L10n.tr("Localizable", "settings.connection_section.location_send_type.setting.zone_only") }
+        }
+      }
       public enum RemoteUiUrl {
         /// Remote UI URL
         public static var title: String { return L10n.tr("Localizable", "settings.connection_section.remote_ui_url.title") }
+      }
+      public enum SensorSendType {
+        /// Sensors Sent
+        public static var title: String { return L10n.tr("Localizable", "settings.connection_section.sensor_send_type.title") }
+        public enum Setting {
+          /// All
+          public static var all: String { return L10n.tr("Localizable", "settings.connection_section.sensor_send_type.setting.all") }
+          /// None
+          public static var `none`: String { return L10n.tr("Localizable", "settings.connection_section.sensor_send_type.setting.none") }
+        }
       }
       public enum ValidateError {
         /// Edit URL
@@ -1106,6 +1171,12 @@ public enum L10n {
         /// Reset frontend cache
         public static var title: String { return L10n.tr("Localizable", "settings.reset_section.reset_web_cache.title") }
       }
+    }
+    public enum ServerSelect {
+      /// Server
+      public static var pageTitle: String { return L10n.tr("Localizable", "settings.server_select.page_title") }
+      /// Server
+      public static var title: String { return L10n.tr("Localizable", "settings.server_select.title") }
     }
     public enum StatusSection {
       /// Status

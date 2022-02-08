@@ -5,6 +5,7 @@ import RealmSwift
 
 public final class RLMScene: Object, UpdatableModel {
     @objc public dynamic var identifier: String = ""
+    @objc public dynamic var serverIdentifier: String = ""
 
     @objc private dynamic var backingPosition: Int = 0
     public static var positionKeyPath: String { #keyPath(RLMScene.backingPosition) }
@@ -39,11 +40,20 @@ public final class RLMScene: Object, UpdatableModel {
     @objc public dynamic var textColor: String?
     @objc public dynamic var iconColor: String?
 
+    public static func primaryKey(sourceIdentifier: String, serverIdentifier: String) -> String {
+        #warning("multiserver - primary key duplication")
+        return sourceIdentifier
+    }
+
     override public class func primaryKey() -> String? {
         #keyPath(identifier)
     }
 
-    static func didUpdate(objects: [RLMScene], realm: Realm) {
+    static func serverIdentifierKey() -> String {
+        #keyPath(serverIdentifier)
+    }
+
+    static func didUpdate(objects: [RLMScene], server: Server, realm: Realm) {
         let sorted = objects.sorted { lhs, rhs in
             let lhsText = lhs.name ?? lhs.identifier
             let rhsText = rhs.name ?? rhs.identifier
@@ -51,18 +61,18 @@ public final class RLMScene: Object, UpdatableModel {
         }
 
         for (idx, object) in sorted.enumerated() {
-            object.position = Action.PositionOffset.scene.rawValue + idx
+            object.position = Action.PositionOffset.scene.rawValue + server.info.sortOrder + idx
         }
     }
 
-    static func willDelete(objects: [RLMScene], realm: Realm) {
+    static func willDelete(objects: [RLMScene], server: Server?, realm: Realm) {
         // also delete our paired actions if they exist
         let actions = realm.objects(Action.self).filter("ID in %@", objects.map(\.identifier))
         Current.Log.info("deleting actions \(Array(actions.map(\.ID)))")
         realm.delete(actions)
     }
 
-    func update(with entity: HAEntity, using realm: Realm) -> Bool {
+    func update(with entity: HAEntity, server: Server, using realm: Realm) -> Bool {
         precondition(entity.domain == "scene")
 
         if self.realm == nil {
@@ -71,6 +81,7 @@ public final class RLMScene: Object, UpdatableModel {
             precondition(identifier == entity.entityId)
         }
 
+        serverIdentifier = server.identifier.rawValue
         name = entity.attributes.friendlyName
         icon = entity.attributes.icon ?? "mdi:palette"
         backgroundColor = entity.attributes["background_color"] as? String
@@ -98,6 +109,7 @@ public final class RLMScene: Object, UpdatableModel {
         } else {
             precondition(action.ID == identifier)
         }
+        action.serverIdentifier = serverIdentifier
         action.IconName = (icon ?? "mdi:alert").normalizingIconString
         action.Position = position
         action.Name = name ?? identifier

@@ -16,7 +16,19 @@ private extension HAEntityAttributes {
 }
 
 public final class RLMZone: Object, UpdatableModel {
-    @objc public dynamic var ID: String = ""
+    @objc public dynamic var identifier: String = ""
+    @objc public dynamic var entityId: String = "" {
+        didSet {
+            identifier = Self.primaryKey(sourceIdentifier: entityId, serverIdentifier: serverIdentifier)
+        }
+    }
+
+    @objc public dynamic var serverIdentifier: String = "" {
+        didSet {
+            identifier = Self.primaryKey(sourceIdentifier: entityId, serverIdentifier: serverIdentifier)
+        }
+    }
+
     @objc public dynamic var FriendlyName: String?
     @objc public dynamic var Latitude: Double = 0.0
     @objc public dynamic var Longitude: Double = 0.0
@@ -36,25 +48,30 @@ public final class RLMZone: Object, UpdatableModel {
     public var SSIDTrigger = List<String>()
     public var SSIDFilter = List<String>()
 
-    public var isHome: Bool {
-        ID == "zone.home"
+    static func primaryKey(sourceIdentifier: String, serverIdentifier: String) -> String {
+        serverIdentifier + "/" + sourceIdentifier
     }
 
-    static func didUpdate(objects: [RLMZone], realm: Realm) {}
+    public var isHome: Bool {
+        entityId == "zone.home"
+    }
 
-    static func willDelete(objects: [RLMZone], realm: Realm) {}
+    static func didUpdate(objects: [RLMZone], server: Server, realm: Realm) {}
 
-    func update(with zone: HAEntity, using: Realm) -> Bool {
+    static func willDelete(objects: [RLMZone], server: Server?, realm: Realm) {}
+
+    func update(with zone: HAEntity, server: Server, using: Realm) -> Bool {
         guard let zoneAttributes = zone.attributes.zone else {
             return false
         }
 
         if realm == nil {
-            ID = zone.entityId
+            entityId = zone.entityId
         } else {
-            precondition(zone.entityId == ID)
+            precondition(zone.entityId == entityId)
         }
 
+        serverIdentifier = server.identifier.rawValue
         FriendlyName = zone.attributes.friendlyName
         Latitude = zoneAttributes.latitude
         Longitude = zoneAttributes.longitude
@@ -73,6 +90,10 @@ public final class RLMZone: Object, UpdatableModel {
         SSIDFilter.append(objectsIn: zone.attributes.ssidFilter)
 
         return true
+    }
+
+    public static var trackablePredicate: NSPredicate {
+        .init(format: "TrackingEnabled == true && isPassive == false")
     }
 
     public var center: CLLocationCoordinate2D {
@@ -105,7 +126,7 @@ public final class RLMZone: Object, UpdatableModel {
     }
 
     public var circularRegion: CLCircularRegion {
-        let region = CLCircularRegion(center: center, radius: Radius, identifier: ID)
+        let region = CLCircularRegion(center: center, radius: Radius, identifier: identifier)
         region.notifyOnEntry = true
         region.notifyOnExit = true
         return region
@@ -135,14 +156,14 @@ public final class RLMZone: Object, UpdatableModel {
                     uuid: uuid,
                     major: CLBeaconMajorValue(major),
                     minor: CLBeaconMinorValue(minor),
-                    identifier: self.ID
+                    identifier: identifier
                 )
             } else {
                 beaconRegion = CLBeaconRegion(
                     proximityUUID: uuid,
                     major: CLBeaconMajorValue(major),
                     minor: CLBeaconMinorValue(minor),
-                    identifier: ID
+                    identifier: identifier
                 )
             }
         } else if let major = BeaconMajor.value {
@@ -150,20 +171,20 @@ public final class RLMZone: Object, UpdatableModel {
                 beaconRegion = CLBeaconRegion(
                     uuid: uuid,
                     major: CLBeaconMajorValue(major),
-                    identifier: self.ID
+                    identifier: identifier
                 )
             } else {
                 beaconRegion = CLBeaconRegion(
                     proximityUUID: uuid,
                     major: CLBeaconMajorValue(major),
-                    identifier: ID
+                    identifier: identifier
                 )
             }
         } else {
             if #available(iOS 13, *) {
-                beaconRegion = CLBeaconRegion(uuid: uuid, identifier: self.ID)
+                beaconRegion = CLBeaconRegion(uuid: uuid, identifier: identifier)
             } else {
-                beaconRegion = CLBeaconRegion(proximityUUID: uuid, identifier: ID)
+                beaconRegion = CLBeaconRegion(proximityUUID: uuid, identifier: identifier)
             }
         }
 
@@ -181,7 +202,7 @@ public final class RLMZone: Object, UpdatableModel {
     public var circularRegionsForMonitoring: [CLCircularRegion] {
         if Radius >= 100 {
             // zone is big enough to not have false-enters
-            let region = CLCircularRegion(center: center, radius: Radius, identifier: ID)
+            let region = CLCircularRegion(center: center, radius: Radius, identifier: identifier)
             region.notifyOnEntry = true
             region.notifyOnExit = true
             return [region]
@@ -204,26 +225,34 @@ public final class RLMZone: Object, UpdatableModel {
                 CLCircularRegion(
                     center: center.moving(distance: centerOffset, direction: angle),
                     radius: minimumRadius,
-                    identifier: String(format: "%@@%03.0f", ID, angle.converted(to: .degrees).value)
+                    identifier: String(format: "%@@%03.0f", identifier, angle.converted(to: .degrees).value)
                 )
             }
         }
     }
 
     override public static func primaryKey() -> String? {
-        "ID"
+        #keyPath(identifier)
+    }
+
+    static func serverIdentifierKey() -> String {
+        #keyPath(serverIdentifier)
     }
 
     public var Name: String {
         if isInvalidated { return "Deleted" }
         if let fName = FriendlyName { return fName }
-        return ID.replacingOccurrences(
+        return entityId.replacingOccurrences(
             of: "\(Domain).",
             with: ""
         ).replacingOccurrences(
             of: "_",
             with: " "
         ).capitalized
+    }
+
+    public var deviceTrackerName: String {
+        entityId.replacingOccurrences(of: "\(Domain).", with: "")
     }
 
     public var Domain: String {
@@ -236,6 +265,19 @@ public final class RLMZone: Object, UpdatableModel {
     }
 
     override public var debugDescription: String {
-        "Zone - ID: \(ID), state: " + (inRegion ? "inside" : "outside")
+        "Zone - ID: \(identifier), state: " + (inRegion ? "inside" : "outside")
+    }
+
+    public static func zone(of location: CLLocation, in server: Server) -> Self? {
+        Current.realm()
+            .objects(Self.self)
+            .filter("%K == %@", #keyPath(serverIdentifier), server.identifier.rawValue)
+            .filter(trackablePredicate)
+            .filter { $0.circularRegion.containsWithAccuracy(location) }
+            .sorted { zoneA, zoneB in
+                zoneA.circularRegion.distanceWithAccuracy(from: location)
+                    < zoneB.circularRegion.distanceWithAccuracy(from: location)
+            }
+            .first
     }
 }

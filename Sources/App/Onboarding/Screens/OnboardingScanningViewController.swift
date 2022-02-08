@@ -1,4 +1,3 @@
-import Lottie
 import PromiseKit
 import Shared
 import UIKit
@@ -250,8 +249,8 @@ extension OnboardingScanningViewController: UITableViewDelegate {
             cell?.isLoading = false
             tableView.isUserInteractionEnabled = true
             tableView.deselectRow(at: indexPath, animated: true)
-        }.done { [self] in
-            show(authentication.successController(), sender: self)
+        }.done { [self] server in
+            show(authentication.successController(server: server), sender: self)
         }.catch { [self] error in
             show(authentication.failureController(error: error), sender: self)
         }

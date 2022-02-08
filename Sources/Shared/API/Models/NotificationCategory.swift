@@ -6,8 +6,10 @@ public final class NotificationCategory: Object, UpdatableModel {
     public static let FallbackActionIdentifier = "_"
 
     @objc public dynamic var isServerControlled: Bool = false
+    @objc public dynamic var serverIdentifier: String = ""
 
     @objc public dynamic var Name: String = ""
+
     @objc public dynamic var Identifier: String = ""
     @objc public dynamic var HiddenPreviewsBodyPlaceholder: String?
     // iOS 12+ only
@@ -23,8 +25,17 @@ public final class NotificationCategory: Object, UpdatableModel {
 
     public var Actions = List<NotificationAction>()
 
+    static func primaryKey(sourceIdentifier: String, serverIdentifier: String) -> String {
+        #warning("multiserver - primary key duplication")
+        return sourceIdentifier
+    }
+
     override public static func primaryKey() -> String? {
-        "Identifier"
+        #keyPath(Identifier)
+    }
+
+    static func serverIdentifierKey() -> String {
+        #keyPath(serverIdentifier)
     }
 
     public var options: UNNotificationCategoryOptions {
@@ -87,15 +98,15 @@ public final class NotificationCategory: Object, UpdatableModel {
         """
     }
 
-    static func didUpdate(objects: [NotificationCategory], realm: Realm) {}
+    static func didUpdate(objects: [NotificationCategory], server: Server, realm: Realm) {}
 
-    static func willDelete(objects: [NotificationCategory], realm: Realm) {}
+    static func willDelete(objects: [NotificationCategory], server: Server?, realm: Realm) {}
 
     static var updateEligiblePredicate: NSPredicate {
         .init(format: "isServerControlled == YES")
     }
 
-    public func update(with object: MobileAppConfigPushCategory, using realm: Realm) -> Bool {
+    public func update(with object: MobileAppConfigPushCategory, server: Server, using realm: Realm) -> Bool {
         if self.realm == nil {
             Identifier = object.identifier.uppercased()
         } else {
@@ -103,6 +114,7 @@ public final class NotificationCategory: Object, UpdatableModel {
         }
 
         isServerControlled = true
+        serverIdentifier = server.identifier.rawValue
         Name = object.name
 
         // TODO: update

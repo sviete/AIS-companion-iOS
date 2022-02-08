@@ -2,7 +2,9 @@ import Alamofire
 import AVFoundation
 import AVKit
 import CoreLocation
+import HAKit
 import KeychainAccess
+import MBProgressHUD
 import PromiseKit
 import Shared
 import SwiftMessages
@@ -12,7 +14,10 @@ import WebKit
 class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, UIViewControllerRestoration {
     var webView: WKWebView!
 
+    let server: Server
+
     var urlObserver: NSKeyValueObservation?
+    var tokens = [HACancellable]()
 
     let refreshControl = UIRefreshControl()
 
@@ -26,10 +31,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         if #available(iOS 13, *) {
             return nil
         } else {
-            let webViewController = WebViewController(restorationActivity: nil)
-            // although the system is also going to call through this restoration method, it's going to do it _too late_
-            webViewController.decodeRestorableState(with: coder)
-            return webViewController
+            return WebViewController(restoring: .coder(coder))
         }
     }
 
@@ -60,6 +62,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
 
     enum RestorableStateKey: String {
         case lastURL
+        case server
     }
 
     override func encodeRestorableState(with coder: NSCoder) {
@@ -67,18 +70,14 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         } else {
             super.encodeRestorableState(with: coder)
             coder.encode(webView.url as NSURL?, forKey: RestorableStateKey.lastURL.rawValue)
+            coder.encode(server.identifier.rawValue as NSString?, forKey: RestorableStateKey.server.rawValue)
         }
     }
 
     override func decodeRestorableState(with coder: NSCoder) {
         if #available(iOS 13, *) {
         } else {
-            guard !isViewLoaded else {
-                // this is state decoding late in the cycle, not our initial one; ignore.
-                return
-            }
-
-            initialURL = coder.decodeObject(of: NSURL.self, forKey: RestorableStateKey.lastURL.rawValue) as URL?
+            // we do this manually so that we can get the values earlier
             super.decodeRestorableState(with: coder)
         }
     }
@@ -95,7 +94,6 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         becomeFirstResponder()
 
         for name: Notification.Name in [
-            SettingsStore.connectionInfoDidChange,
             HomeAssistantAPI.didConnectNotification,
             UIApplication.didBecomeActiveNotification,
         ] {
@@ -106,6 +104,17 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
                 object: nil
             )
         }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(scheduleReconnectBackgroundTimer),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+
+        tokens.append(server.observe { [weak self] _ in
+            self?.connectionInfoDidChange()
+        })
 
         let statusBarView = UIView()
         statusBarView.tag = 111
@@ -127,16 +136,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         userContentController.add(self, name: "revokeExternalAuth")
         userContentController.add(self, name: "externalBus")
         userContentController.add(self, name: "updateThemeColors")
-        userContentController.add(self, name: "mediaPlayerCommand")
-
-        if let webhookID = Current.settingsStore.connectionInfo?.webhookID {
-            let webhookGlobal = "window.webhookID = '\(webhookID)';"
-            userContentController.addUserScript(WKUserScript(
-                source: webhookGlobal,
-                injectionTime: .atDocumentStart,
-                forMainFrameOnly: false
-            ))
-        }
+        userContentController.add(self, name: "logError")
 
         guard let wsBridgeJSPath = Bundle.main.path(forResource: "WebSocketBridge", ofType: "js"),
               let wsBridgeJS = try? String(contentsOfFile: wsBridgeJSPath) else {
@@ -149,6 +149,21 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
             forMainFrameOnly: false
         ))
 
+        userContentController.addUserScript(.init(
+            source: """
+                window.addEventListener("error", (e) => {
+                    window.webkit.messageHandlers.logError.postMessage({
+                        "message": JSON.stringify(e.message),
+                        "filename": JSON.stringify(e.filename),
+                        "lineno": JSON.stringify(e.lineno),
+                        "colno": JSON.stringify(e.colno),
+                    });
+                });
+            """,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false
+        ))
+
         config.userContentController = userContentController
         // "Mobile/BUILD_NUMBER" is what CodeMirror sniffs for to decide iOS or not; other things likely look for Safari
         config.applicationNameForUserAgent = HomeAssistantAPI.userAgent + " Mobile/HomeAssistant, like Safari"
@@ -156,6 +171,13 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         webView = WKWebView(frame: view!.frame, configuration: config)
         webView.isOpaque = false
         view!.addSubview(webView)
+
+        for direction: UISwipeGestureRecognizer.Direction in [.left, .right] {
+            webView.addGestureRecognizer(with(UISwipeGestureRecognizer(target: self, action: #selector(swipe(_:)))) {
+                $0.numberOfTouchesRequired = 2
+                $0.direction = direction
+            })
+        }
 
         urlObserver = webView.observe(\.url) { [weak self] webView, _ in
             guard let self = self else { return }
@@ -171,7 +193,10 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
             }
 
             self.userActivity?.webpageURL = cleanURL
-            self.userActivity?.userInfo = [RestorableStateKey.lastURL.rawValue: cleanURL]
+            self.userActivity?.userInfo = [
+                RestorableStateKey.lastURL.rawValue: cleanURL,
+                RestorableStateKey.server.rawValue: self.server.identifier.rawValue,
+            ]
             self.userActivity?.becomeCurrent()
         }
 
@@ -241,21 +266,72 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         userActivity?.resignCurrent()
     }
 
-    init(restorationActivity: NSUserActivity?, shouldLoadImmediately: Bool = false) {
+    enum RestorationType {
+        case userActivity(NSUserActivity)
+        case coder(NSCoder)
+        case server(Server)
+
+        init?(_ userActivity: NSUserActivity?) {
+            if let userActivity = userActivity {
+                self = .userActivity(userActivity)
+            } else {
+                return nil
+            }
+        }
+
+        var initialURL: URL? {
+            switch self {
+            case let .userActivity(userActivity):
+                return userActivity.userInfo?[RestorableStateKey.lastURL.rawValue] as? URL
+            case let .coder(coder):
+                return coder.decodeObject(of: NSURL.self, forKey: RestorableStateKey.lastURL.rawValue) as URL?
+            case .server:
+                return nil
+            }
+        }
+
+        var server: Server? {
+            let serverRawValue: String?
+
+            switch self {
+            case let .userActivity(userActivity):
+                serverRawValue = userActivity.userInfo?[RestorableStateKey.server.rawValue] as? String
+            case let .coder(coder):
+                serverRawValue = coder.decodeObject(
+                    of: NSString.self,
+                    forKey: RestorableStateKey.server.rawValue
+                ) as String?
+            case let .server(server):
+                return server
+            }
+
+            return Current.servers.server(forServerIdentifier: serverRawValue)
+        }
+    }
+
+    init(server: Server, shouldLoadImmediately: Bool = false) {
+        self.server = server
+
         super.init(nibName: nil, bundle: nil)
 
         userActivity = with(NSUserActivity(activityType: "\(Constants.BundleID).frontend")) {
             $0.isEligibleForHandoff = true
         }
 
-        if let url = restorationActivity?.userInfo?[RestorableStateKey.lastURL.rawValue] as? URL {
-            self.initialURL = url
-        }
-
         if shouldLoadImmediately {
             loadViewIfNeeded()
             loadActiveURLIfNeeded()
         }
+    }
+
+    convenience init?(restoring: RestorationType?, shouldLoadImmediately: Bool = false) {
+        if let server = restoring?.server ?? Current.servers.all.first {
+            self.init(server: server)
+        } else {
+            return nil
+        }
+
+        self.initialURL = restoring?.initialURL
     }
 
     @available(*, unavailable)
@@ -265,6 +341,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
 
     deinit {
         self.urlObserver = nil
+        self.tokens.forEach { $0.cancel() }
     }
 
     private func styleUI() {
@@ -384,8 +461,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
 
             // it's for the restored page, let's load the default url
 
-            if let connectionInfo = Current.settingsStore.connectionInfo,
-               let webviewURL = connectionInfo.webviewURL {
+            if let webviewURL = server.info.connection.webviewURL() {
                 decisionHandler(.cancel)
                 webView.load(URLRequest(url: webviewURL))
             } else {
@@ -507,7 +583,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
     }
 
     @objc private func loadActiveURLIfNeeded() {
-        guard let webviewURL = Current.settingsStore.connectionInfo?.webviewURL else {
+        guard let webviewURL = server.info.connection.webviewURL() else {
             Current.Log.info("not loading, no url")
             return
         }
@@ -540,7 +616,7 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
 
     @objc private func refresh() {
         // called via menu/keyboard shortcut too
-        if let webviewURL = Current.settingsStore.connectionInfo?.webviewURL {
+        if let webviewURL = server.info.connection.webviewURL() {
             if webView.url?.baseIsEqual(to: webviewURL) == true, !lastNavigationWasServerError {
                 webView.reload()
             } else {
@@ -549,10 +625,36 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
         }
     }
 
+    @objc private func swipe(_ gesture: UISwipeGestureRecognizer) {
+        let icon: MaterialDesignIcons
+
+        if gesture.direction == .left, webView.canGoForward {
+            _ = webView.goForward()
+            icon = .arrowRightIcon
+        } else if gesture.direction == .right, webView.canGoBack {
+            _ = webView.goBack()
+            icon = .arrowLeftIcon
+        } else {
+            // the returned WKNavigation doesn't appear to be nil/non-nil based on whether forward/back occurred
+            return
+        }
+
+        let hud = MBProgressHUD.showAdded(to: view, animated: true)
+        hud.isUserInteractionEnabled = false
+        hud.customView = with(IconImageView(frame: CGRect(x: 0, y: 0, width: 37, height: 37))) {
+            $0.iconDrawable = icon
+        }
+        hud.mode = .customView
+        hud.hide(animated: true, afterDelay: 1.0)
+    }
+
     @objc private func updateSensors() {
         // called via menu/keyboard shortcut too
-        Current.api.then { api in
-            api.manuallyUpdate(applicationState: UIApplication.shared.applicationState)
+        firstly {
+            HomeAssistantAPI.manuallyUpdate(
+                applicationState: UIApplication.shared.applicationState,
+                type: .userRequested
+            )
         }.catch { [weak self] error in
             self?.showSwiftMessage(error: error)
         }
@@ -668,6 +770,44 @@ class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, U
             webView.evaluateJavaScript("setOverrideZoomEnabled(\(zoomValue))", completionHandler: nil)
         }
     }
+
+    private var reconnectBackgroundTimer: Timer? {
+        willSet {
+            if reconnectBackgroundTimer != newValue {
+                reconnectBackgroundTimer?.invalidate()
+            }
+        }
+    }
+
+    @objc private func scheduleReconnectBackgroundTimer() {
+        precondition(Thread.isMainThread)
+
+        guard isViewLoaded, server.info.version >= .externalBusCommandRestart else { return }
+
+        // On iOS 15, Apple switched to using NSURLSession's WebSocket implementation, which is pretty bad at detecting
+        // any kind of networking failure. Even more troubling, it doesn't realize there's a failure due to background
+        // so it spends dozens of seconds waiting for a connection reset externally.
+        //
+        // We work around this by detecting being in the background for long enough that it's likely the connection will
+        // need to reconnect, anyway (similar to how we do it in HAKit). When this happens, we ask the frontend to
+        // reset its WebSocket connection, thus eliminating the wait.
+        //
+        // It's likely this doesn't apply before iOS 15, but it may improve the reconnect timing there anyhow.
+
+        reconnectBackgroundTimer = Timer.scheduledTimer(
+            withTimeInterval: 5.0,
+            repeats: true,
+            block: { [weak self] timer in
+                if let self = self, Current.date().timeIntervalSince(timer.fireDate) > 30.0 {
+                    self.sendExternalBus(message: .init(command: "restart"))
+                }
+
+                if UIApplication.shared.applicationState == .active {
+                    timer.invalidate()
+                }
+            }
+        )
+    }
 }
 
 extension String {
@@ -687,21 +827,27 @@ extension String {
 
 extension WebViewController: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let messageBody = message.body as? [String: Any] else { return }
+        guard let messageBody = message.body as? [String: Any] else {
+            Current.Log.error("received message for \(message.name) but of type: \(type(of: message.body))")
+            return
+        }
 
-        if message.name == "externalBus" {
+        Current.Log.verbose("message \(message.body)".replacingOccurrences(of: "\n", with: " "))
+
+        switch message.name {
+        case "externalBus":
             handleExternalMessage(messageBody)
-        } else if message.name == "updateThemeColors" {
+        case "updateThemeColors":
             handleThemeUpdate(messageBody)
-        } else if message.name == "getExternalAuth", let callbackName = messageBody["callback"] {
+        case "getExternalAuth":
+            guard let callbackName = messageBody["callback"] else { return }
+
             let force = messageBody["force"] as? Bool ?? false
 
             Current.Log.verbose("getExternalAuth called, forced: \(force)")
 
             firstly {
-                Current.api.map(\.tokenManager)
-            }.then {
-                $0.authDictionaryForWebView(forceRefresh: force)
+                Current.api(for: server).tokenManager.authDictionaryForWebView(forceRefresh: force)
             }.done { dictionary in
                 let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: [])
                 if let jsonString = String(data: jsonData!, encoding: .utf8) {
@@ -719,17 +865,16 @@ extension WebViewController: WKScriptMessageHandler {
                 self.webView.evaluateJavaScript("\(callbackName)(false, 'Token unavailable')")
                 Current.Log.error("Failed to authenticate webview: \(error)")
             }
-        } else if message.name == "revokeExternalAuth", let callbackName = messageBody["callback"] {
+        case "revokeExternalAuth":
+            guard let callbackName = messageBody["callback"] else { return }
+
             Current.Log.warning("Revoking access token")
 
             firstly {
-                Current.api
-                    .map(\.tokenManager)
-                    .then { $0.revokeToken() }
-            }.done { _ in
-                Current.resetAPI()
-                Current.settingsStore.connectionInfo = nil
-                Current.settingsStore.tokenInfo = nil
+                Current.api(for: server).tokenManager.revokeToken()
+            }.done { [server] _ in
+                Current.servers.remove(identifier: server.identifier)
+
                 let script = "\(callbackName)(true)"
 
                 Current.Log.verbose("Running revoke external auth callback \(script)")
@@ -746,6 +891,10 @@ extension WebViewController: WKScriptMessageHandler {
             }.catch { error in
                 Current.Log.error("Failed to revoke token: \(error)")
             }
+        case "logError":
+            Current.Log.error("WebView error: \(messageBody.description.replacingOccurrences(of: "\n", with: " "))")
+        default:
+            Current.Log.error("unknown message: \(message.name)")
         }
     }
 
@@ -781,8 +930,6 @@ extension WebViewController: WKScriptMessageHandler {
             Current.Log.error("Received invalid external message \(dictionary)")
             return
         }
-
-        // Current.Log.verbose("Received external bus message \(incomingMessage)")
 
         var response: Guarantee<WebSocketMessage>?
 
@@ -844,41 +991,38 @@ extension WebViewController: WKScriptMessageHandler {
                 Current.Log.error("couldn't write tag via external bus: \(error)")
                 seal(false)
             }
+        case "theme-update":
+            webView.evaluateJavaScript("notifyThemeColors()", completionHandler: nil)
         default:
-            Current.Log.error("Received unknown external message \(incomingMessage)")
+            Current.Log.error("unknown: \(incomingMessage.MessageType)")
             return
         }
 
-        response?.done(on: .main) { outgoing in
-            // Current.Log.verbose("Sending response to \(outgoing)")
+        response?.then { [self] outgoing in
+            sendExternalBus(message: outgoing)
+        }.cauterize()
+    }
 
-            var encodedMsg: Data?
-
-            do {
-                encodedMsg = try JSONEncoder().encode(outgoing)
-            } catch let error as NSError {
-                Current.Log.error("Unable to encode outgoing message! \(error)")
-                return
-            }
-
-            guard let jsonString = String(data: encodedMsg!, encoding: .utf8) else {
-                Current.Log.error("Could not convert JSON Data to JSON String")
-                return
-            }
-
-            let script = "window.externalBus(\(jsonString))"
-            // Current.Log.verbose("Sending message to externalBus \(script)")
-            self.webView.evaluateJavaScript(script, completionHandler: { _, error in
-                if let error = error {
-                    Current.Log.error("Failed to fire message to externalBus: \(error)")
+    @discardableResult
+    private func sendExternalBus(message: WebSocketMessage) -> Promise<Void> {
+        Promise<Void> { seal in
+            DispatchQueue.main.async { [self] in
+                do {
+                    let encodedMsg = try JSONEncoder().encode(message)
+                    let jsonString = String(decoding: encodedMsg, as: UTF8.self)
+                    let script = "window.externalBus(\(jsonString))"
+                    Current.Log.verbose("sending \(jsonString)")
+                    webView.evaluateJavaScript(script, completionHandler: { _, error in
+                        if let error = error {
+                            Current.Log.error("failed to fire message to externalBus: \(error)")
+                        }
+                        seal.resolve(error)
+                    })
+                } catch {
+                    Current.Log.error("failed to send \(message): \(error)")
+                    seal.reject(error)
                 }
-
-                /* if let result = result {
-                     Current.Log.verbose("Success on firing message to externalBus: \(String(describing: result))")
-                 } else {
-                     Current.Log.verbose("Sent message to externalBus")
-                 } */
-            })
+            }
         }
     }
 }
@@ -892,28 +1036,26 @@ extension WebViewController: UIScrollViewDelegate {
 }
 
 extension ConnectionInfo {
-    var webviewURLComponents: URLComponents? {
+    mutating func webviewURLComponents() -> URLComponents? {
         if Current.appConfiguration == .FastlaneSnapshot, prefs.object(forKey: "useDemo") != nil {
             return URLComponents(string: "https://companion.home-assistant.io/app/ios/demo")!
         }
-        guard var components = URLComponents(url: activeURL, resolvingAgainstBaseURL: true) else {
+        guard var components = URLComponents(url: activeURL(), resolvingAgainstBaseURL: true) else {
             return nil
         }
 
-        if Current.settingsStore.tokenInfo != nil {
-            let queryItem = URLQueryItem(name: "external_auth", value: "1")
-            components.queryItems = [queryItem]
-        }
+        let queryItem = URLQueryItem(name: "external_auth", value: "1")
+        components.queryItems = [queryItem]
 
         return components
     }
 
-    var webviewURL: URL? {
-        webviewURLComponents?.url
+    mutating func webviewURL() -> URL? {
+        webviewURLComponents()?.url
     }
 
-    func webviewURL(from raw: String) -> URL? {
-        guard let baseURLComponents = webviewURLComponents, let baseURL = baseURLComponents.url else {
+    mutating func webviewURL(from raw: String) -> URL? {
+        guard let baseURLComponents = webviewURLComponents(), let baseURL = baseURLComponents.url else {
             return nil
         }
 

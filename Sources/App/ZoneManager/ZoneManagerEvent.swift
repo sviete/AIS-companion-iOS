@@ -40,7 +40,7 @@ struct ZoneManagerEvent: Equatable, CustomStringConvertible {
 
     static func == (lhs: ZoneManagerEvent, rhs: ZoneManagerEvent) -> Bool {
         lhs.eventType == rhs.eventType &&
-            lhs.associatedZone?.ID == rhs.associatedZone?.ID
+            lhs.associatedZone?.identifier == rhs.associatedZone?.identifier
     }
 
     var description: String {
@@ -52,7 +52,7 @@ struct ZoneManagerEvent: Equatable, CustomStringConvertible {
             if zone.isInvalidated {
                 attributes.append("zone deleted")
             } else {
-                attributes.append(zone.ID)
+                attributes.append(zone.identifier)
             }
         }
 
@@ -86,14 +86,6 @@ struct ZoneManagerEvent: Equatable, CustomStringConvertible {
                 return "region-\(region.identifier)"
             }
         }()
-    }
-
-    func asFirableEvent() -> (eventType: String, eventData: [String: Any])? {
-        guard case let .region(region, state) = eventType, let zone = associatedZone else {
-            return nil
-        }
-
-        return HomeAssistantAPI.zoneStateEvent(region: region, state: state, zone: zone)
     }
 
     func asTrigger() -> LocationUpdateTrigger {

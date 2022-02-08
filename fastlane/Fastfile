@@ -34,6 +34,8 @@ private_lane :setup do
   ENV['FASTLANE_ITC_TEAM_ID'] = ENV['HOMEASSISTANT_APP_STORE_CONNECT_TEAM_ID']
   ENV['SIGH_USERNAME'] = ENV['HOMEASSISTANT_APPLE_ID']
   ENV['SIGH_PROFILE_PATHS'] = '../Configuration/Provisioning'
+
+  app_store_connect_api_key if ENV['APP_STORE_CONNECT_API_KEY_KEY']
 end
 
 lane :lint do
@@ -182,10 +184,12 @@ lane :update_strings do
     'fr' => 'fr',
     'id' => 'id',
     'it' => 'it',
+    'ja' => 'ja',
     'ko' => 'ko-KR',
     'nb' => 'nb',
     'nl' => 'nl',
     'pl' => 'pl-PL',
+    'pt-BR' => 'pt-BR',
     'ru' => 'ru',
     'sl' => 'sl',
     'sv' => 'sv',
@@ -457,12 +461,24 @@ private_lane :upload_archive_to_sentry do
 end
 
 private_lane :upload_binary_to_apple do |options|
-  sh(
-    'xcrun', 'altool', '--upload-app', '--type', options[:type],
-    '--file', options[:path],
-    '--username', ENV['DELIVER_USERNAME'],
-    '--password', '@env:FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD'
-  )
+  attempts = 0
+
+  begin
+    sh(
+      'xcrun', 'altool', '--upload-app', '--type', options[:type],
+      '--file', options[:path],
+      '--username', ENV['DELIVER_USERNAME'],
+      '--password', '@env:FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD'
+    )
+  rescue StandardError => e
+    puts "Failed with #{e}; retrying upload..."
+
+    # retry a few times, then give up
+    attempts += 1
+
+    retry if attempts <= 3
+    raise e
+  end
 end
 
 platform :ios do
