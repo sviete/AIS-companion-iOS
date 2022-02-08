@@ -2,11 +2,9 @@ import Eureka
 import MBProgressHUD
 import PromiseKit
 import RealmSwift
-import Sentry
 import Shared
 import WebKit
 import XCGLogger
-import ZIPFoundation
 
 class DebugSettingsViewController: HAFormViewController {
     private var shakeCount = 0
@@ -171,79 +169,10 @@ class DebugSettingsViewController: HAFormViewController {
                 cell.textLabel?.textAlignment = .natural
             }
         }.onCellSelection { [weak self] cell, _ in
-            Current.Log.verbose("Logs directory is: \(Constants.LogsDirectory)")
-
-            guard !Current.isCatalyst else {
-                // on Catalyst we can just open the directory to get to Finder
-                UIApplication.shared.open(Constants.LogsDirectory, options: [:]) { success in
-                    Current.Log.info("opened log directory: \(success)")
-                }
-                return
-            }
-
-            let fileManager = FileManager.default
-
-            let fileName = DateFormatter(
-                withFormat: "yyyy-MM-dd'T'HHmmssZ",
-                locale: "en_US_POSIX"
-            ).string(from: Date()) + "_logs.zip"
-
-            Current.Log.debug("Exporting logs as filename \(fileName)")
-
-            if let zipDest = fileManager.containerURL(forSecurityApplicationGroupIdentifier: Constants.AppGroupID)?
-                .appendingPathComponent(fileName, isDirectory: false) {
-                _ = try? fileManager.removeItem(at: zipDest)
-
-                guard let archive = Archive(url: zipDest, accessMode: .create) else {
-                    fatalError("Unable to create ZIP archive!")
-                }
-
-                guard let backupURL = Realm.backup() else {
-                    fatalError("Unable to backup Realm!")
-                }
-
-                do {
-                    try archive.addEntry(
-                        with: backupURL.lastPathComponent,
-                        relativeTo: backupURL.deletingLastPathComponent()
-                    )
-                } catch {
-                    Current.Log.error("Error adding Realm backup to archive!")
-                }
-
-                if let logFiles = try? fileManager.contentsOfDirectory(
-                    at: Constants.LogsDirectory,
-                    includingPropertiesForKeys: nil
-                ) {
-                    for logFile in logFiles {
-                        do {
-                            try archive.addEntry(
-                                with: logFile.lastPathComponent,
-                                relativeTo: logFile.deletingLastPathComponent()
-                            )
-                        } catch {
-                            Current.Log.error("Error adding log \(logFile) to archive!")
-                        }
-                    }
-                }
-
-                let activityViewController = UIActivityViewController(
-                    activityItems: [zipDest],
-                    applicationActivities: nil
-                )
-                activityViewController.completionWithItemsHandler = { type, completed, _, _ in
-                    let didCancelEntirely = type == nil && !completed
-                    let didCompleteEntirely = completed
-
-                    if didCancelEntirely || didCompleteEntirely {
-                        try? fileManager.removeItem(at: zipDest)
-                    }
-                }
-                self?.present(activityViewController, animated: true, completion: {})
-                if let popOver = activityViewController.popoverPresentationController {
-                    popOver.sourceView = cell
-                }
-            }
+            guard let self = self else { return }
+            Current.Log.export(from: self, sender: cell, openURLHandler: { url in
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            })
         }
 
         section <<< SettingsButtonRow {
@@ -445,7 +374,7 @@ class DebugSettingsViewController: HAFormViewController {
             )
 
             alert.addAction(UIAlertAction(title: L10n.okLabel, style: .default, handler: { _ in
-                SentrySDK.crash()
+//                SentrySDK.crash()
             }))
 
             self?.present(alert, animated: true, completion: nil)
@@ -474,17 +403,14 @@ class DebugSettingsViewController: HAFormViewController {
 
         firstly {
             race(
-                Current.api
-                    .map(\.tokenManager)
-                    .then { $0.revokeToken() }.asVoid()
-                    .recover { _ in () },
+                when(resolved: Current.apis.map { $0.tokenManager.revokeToken() }).asVoid(),
                 after(seconds: 10.0)
             )
         }.then {
             waitAtLeast
         }.get {
-            Current.apiConnection.disconnect()
-
+            Current.apis.map(\.connection).forEach { $0.disconnect() }
+            Current.servers.removeAll()
             resetStores()
             setDefaults()
         }.then {

@@ -23,14 +23,14 @@ plugin 'cocoapods-acknowledgements'
 
 system('./Tools/BuildMaterialDesignIconsFont.sh')
 
-pod 'Alamofire', '~> 5.0'
+# alamofire can be upgraded when Apple stops breaking iOS 12 builds when Concurrency is referenced
+pod 'Alamofire', '5.4.4'
 pod 'Communicator', git: 'https://github.com/zacwest/Communicator.git', branch: 'observation-memory-direct'
 pod 'KeychainAccess'
 pod 'ObjectMapper', git: 'https://github.com/tristanhimmelman/ObjectMapper.git', branch: 'master'
 pod 'PromiseKit'
 
-pod 'RealmSwift', podspec: 'Configuration/Podspecs/Realm.podspec.json'
-pod 'Sentry'
+pod 'RealmSwift', git: 'https://github.com/zacwest/realm-swift', branch: 'noasync-v10.20.1'
 pod 'UIColor_Hex_Swift'
 pod 'Version'
 pod 'XCGLogger'
@@ -56,6 +56,7 @@ abstract_target 'iOS' do
 
   target 'Shared-iOS' do
     shared_fwk_pods
+    pod 'ZIPFoundation', '~> 0.9'
 
     target 'Tests-Shared' do
       inherit! :complete
@@ -67,14 +68,14 @@ abstract_target 'iOS' do
     pod 'CallbackURLKit'
     pod 'ColorPickerRow', git: 'https://github.com/EurekaCommunity/ColorPickerRow', branch: 'master'
     pod 'CPDAcknowledgements', git: 'https://github.com/CocoaPods/CPDAcknowledgements', branch: 'master'
-    pod 'Eureka', git: 'https://github.com/zacwest/Eureka', branch: 'fix-xcode-13-compile-error'
+    pod 'Eureka', git: 'https://github.com/xmartlabs/Eureka', branch: 'master'
 
-    pod 'Firebase', podspec: 'Configuration/Podspecs/Firebase.podspec.json'
+    pod 'Firebase'
+    pod 'Firebase/Messaging'
 
     pod 'lottie-ios'
     pod 'SwiftMessages'
     pod 'ViewRow', git: 'https://github.com/EurekaCommunity/ViewRow', branch: 'master'
-    pod 'ZIPFoundation', '~> 0.9'
 
     support_modules
 

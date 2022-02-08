@@ -1,11 +1,14 @@
 import Foundation
 import PromiseKit
 @testable import Shared
+import Version
 import XCTest
 
 class SensorContainerTests: XCTestCase {
     private var observer: MockSensorObserver!
     private var container: SensorContainer!
+    private var server1: Server!
+    private var server2: Server!
 
     private enum TestError: Error {
         case anyError
@@ -13,6 +16,11 @@ class SensorContainerTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+
+        let servers = FakeServerManager()
+        server1 = servers.addFake()
+        server2 = servers.addFake()
+        Current.servers = servers
 
         observer = MockSensorObserver()
         container = SensorContainer()
@@ -53,7 +61,7 @@ class SensorContainerTests: XCTestCase {
 
         let date = Date()
         Current.date = { date }
-        let promise = container.sensors(reason: .trigger("unit-test"))
+        let promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         let result = try hang(Promise(promise))
         XCTAssertEqual(Set(result.sensors.map(\.UniqueID)), Set([
             "test1a", "test1b", "test2a", "test2b",
@@ -80,7 +88,7 @@ class SensorContainerTests: XCTestCase {
             ]),
         ]
 
-        let promise = container.sensors(reason: .trigger("unit-test"))
+        let promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         let result = try hang(Promise(promise))
         XCTAssertEqual(Set(result.sensors.map(\.UniqueID)), Set([
             "test1a", "test1b",
@@ -99,13 +107,11 @@ class SensorContainerTests: XCTestCase {
         let date1 = Date(timeIntervalSinceNow: -200)
         Current.date = { date1 }
 
-        let promise1 = container.sensors(reason: .trigger("unit-test"))
+        let promise1 = container.sensors(reason: .trigger("unit-test"), server: server1)
         let result1 = try hang(Promise(promise1))
         XCTAssertEqual(Set(result1.sensors.map(\.Name)), Set([
             "test1a", "test1b",
         ]))
-
-        result1.didPersist()
 
         container.register(observer: observer)
         XCTAssertEqual(observer.updates.count, 1)
@@ -129,7 +135,7 @@ class SensorContainerTests: XCTestCase {
             ]),
         ]
 
-        let promise2 = container.sensors(reason: .registration)
+        let promise2 = container.sensors(reason: .registration, server: server1)
         let result2 = try hang(Promise(promise2))
 
         // registration doesn't do any filtering
@@ -160,7 +166,7 @@ class SensorContainerTests: XCTestCase {
 
         let date = Date(timeIntervalSinceNow: -200)
         Current.date = { date }
-        let promise = container.sensors(reason: .trigger("unit-test"))
+        let promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         let result = try hang(Promise(promise))
         XCTAssertEqual(Set(result.sensors.map(\.UniqueID)), Set([
             "test1a", "test1b",
@@ -186,7 +192,7 @@ class SensorContainerTests: XCTestCase {
             .value([WebhookSensor(name: "test", uniqueID: "test")]),
         ]
 
-        _ = container.sensors(reason: .trigger("unit-test"))
+        _ = container.sensors(reason: .trigger("unit-test"), server: server1)
         XCTAssertTrue(observer.updates.isEmpty)
     }
 
@@ -198,7 +204,7 @@ class SensorContainerTests: XCTestCase {
             .value([WebhookSensor(name: "test", uniqueID: "test")]),
         ]
 
-        let promise = container.sensors(reason: .trigger("unit-test"))
+        let promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         let result = try hang(Promise(promise))
         XCTAssertEqual(result.sensors.map(\.UniqueID), ["test"])
     }
@@ -211,7 +217,7 @@ class SensorContainerTests: XCTestCase {
             .value([]),
         ]
 
-        let promise = container.sensors(reason: .trigger("unit-test"))
+        let promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         _ = try hang(Promise(promise))
 
         guard let lastCreated = MockSensorProvider.lastCreated else {
@@ -250,28 +256,20 @@ class SensorContainerTests: XCTestCase {
         var promise: Guarantee<SensorResponse>
         var result: SensorResponse
 
-        promise = container.sensors(reason: .trigger("unit-test"))
+        promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         result = try hang(Promise(promise))
         XCTAssertEqual(Set(result.sensors.map(\.UniqueID)), Set([
             "test1a", "test1b", "test2a", "test2b",
         ]))
 
-        // don't notify about the persisting, it should stay the same
         MockSensorProvider.returnedPromises = initialValues
-        promise = container.sensors(reason: .trigger("unit-test"))
+        promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         result = try hang(Promise(promise))
         XCTAssertEqual(Set(result.sensors.map(\.UniqueID)), Set([
             "test1a", "test1b", "test2a", "test2b",
         ]))
 
-        // notify, try the same values, nothing should come through
-        result.didPersist()
-        MockSensorProvider.returnedPromises = initialValues
-        promise = container.sensors(reason: .trigger("unit-test"))
-        result = try hang(Promise(promise))
-        XCTAssertTrue(result.sensors.isEmpty)
-
-        // now try a couple changed things, only those should come through
+        // now try a couple changed things
         MockSensorProvider.returnedPromises = [
             .value([
                 WebhookSensor(name: "test1a", uniqueID: "test1a"),
@@ -284,19 +282,16 @@ class SensorContainerTests: XCTestCase {
             ]),
         ]
 
-        promise = container.sensors(reason: .trigger("unit-test"))
+        promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         result = try hang(Promise(promise))
         XCTAssertEqual(Set(result.sensors.map(\.UniqueID)), Set([
-            "test1b", "test2c",
+            "test1a", "test1b", "test2a", "test2b", "test2c",
         ]))
-
-        // persist again and try again
-        result.didPersist()
 
         // now return nothing, should get nothing
         MockSensorProvider.returnedPromises = [.value([]), .value([])]
 
-        promise = container.sensors(reason: .trigger("unit-test"))
+        promise = container.sensors(reason: .trigger("unit-test"), server: server1)
         result = try hang(Promise(promise))
         XCTAssertTrue(result.sensors.isEmpty)
 
@@ -312,195 +307,6 @@ class SensorContainerTests: XCTestCase {
         }
     }
 
-    func testOutOfOrderCachingValues() throws {
-        container.register(provider: MockSensorProvider.self)
-        container.register(provider: MockSensorProvider.self)
-
-        MockSensorProvider.returnedPromises = [
-            .value([
-                WebhookSensor(name: "test1a", uniqueID: "test1a"),
-                WebhookSensor(name: "test1b", uniqueID: "test1b"),
-                WebhookSensor(name: "test1c", uniqueID: "test1c"), // only in first and last one
-            ]),
-            .value([
-                WebhookSensor(name: "test2a", uniqueID: "test2a"),
-                WebhookSensor(name: "test2b", uniqueID: "test2b"),
-            ]),
-        ]
-
-        let promise1 = container.sensors(reason: .trigger("unit-test"))
-        let result1 = try hang(Promise(promise1))
-        XCTAssertEqual(Set(result1.sensors.map(\.Name)), Set([
-            "test1a", "test1b", "test1c", "test2a", "test2b",
-        ]))
-
-        let updatedValues: [Promise<[WebhookSensor]>] = [
-            .value([
-                WebhookSensor(name: "test1a_mod", uniqueID: "test1a"),
-                WebhookSensor(name: "test1b_mod", uniqueID: "test1b"),
-            ]),
-            .value([
-                WebhookSensor(name: "test2a_mod", uniqueID: "test2a"),
-                WebhookSensor(name: "test2b_mod", uniqueID: "test2b"),
-            ]),
-        ]
-
-        MockSensorProvider.returnedPromises = updatedValues
-
-        let promise2 = container.sensors(reason: .trigger("unit-test"))
-        let result2 = try hang(Promise(promise2))
-        XCTAssertEqual(Set(result2.sensors.map(\.Name)), Set([
-            "test1a_mod", "test1b_mod", "test2a_mod", "test2b_mod",
-        ]))
-
-        // complete the later one first
-        result2.didPersist()
-        // this should _not_ override the 'last persisted' from the newer one
-        result1.didPersist()
-
-        MockSensorProvider.returnedPromises = updatedValues
-
-        let promise3 = container.sensors(reason: .trigger("unit-test"))
-        let result3 = try hang(Promise(promise3))
-        // we have to assume result1 cleared away what we sent up, so the new values should be the same
-        XCTAssertEqual(Set(result3.sensors.map(\.Name)), Set([
-            "test1a_mod", "test1b_mod", "test2a_mod", "test2b_mod",
-        ]))
-
-        container.register(observer: observer)
-        XCTAssertFalse(observer.updates.isEmpty)
-
-        if let last = observer.updates.last?.sensors {
-            let observerResult = try hang(Promise(last))
-            XCTAssertEqual(Set(observerResult.map(\.Name)), Set([
-                "test1a_mod", "test1b_mod", "test1c", "test2a_mod", "test2b_mod",
-            ]))
-        }
-
-        result3.didPersist()
-
-        MockSensorProvider.returnedPromises = [
-            .value([
-                WebhookSensor(name: "test1a_mod", uniqueID: "test1a"),
-                WebhookSensor(name: "test1b_mod", uniqueID: "test1b"),
-                WebhookSensor(name: "test1c", uniqueID: "test1c"), // only in first and last one
-            ]),
-            .value([
-                WebhookSensor(name: "test2a_mod", uniqueID: "test2a"),
-                WebhookSensor(name: "test2b_mod", uniqueID: "test2b"),
-            ]),
-        ]
-
-        let promise4 = container.sensors(reason: .trigger("unit-test"))
-        let result4 = try hang(Promise(promise4))
-        // this time we expect nothing new to go up, including the unique one from result1
-        XCTAssertTrue(result4.sensors.isEmpty)
-    }
-
-    func testChangedFailsButSilentlySucceeded() throws {
-        container.register(provider: MockSensorProvider.self)
-        container.register(provider: MockSensorProvider.self)
-
-        MockSensorProvider.returnedPromises = [
-            .value([
-                WebhookSensor(name: "test1a", uniqueID: "test1a"),
-                WebhookSensor(name: "test1b", uniqueID: "test1b"),
-            ]),
-            .value([
-                WebhookSensor(name: "test2a", uniqueID: "test2a"),
-                WebhookSensor(name: "test2b", uniqueID: "test2b"),
-            ]),
-        ]
-
-        let promise1 = container.sensors(reason: .trigger("unit-test"))
-        let result1 = try hang(Promise(promise1))
-        XCTAssertEqual(Set(result1.sensors.map(\.Name)), Set([
-            "test1a", "test1b", "test2a", "test2b",
-        ]))
-
-        result1.didPersist()
-
-        MockSensorProvider.returnedPromises = [
-            .value([
-                WebhookSensor(name: "test1a_mod", uniqueID: "test1a"),
-                WebhookSensor(name: "test1b", uniqueID: "test1b"),
-            ]),
-            .value([
-                WebhookSensor(name: "test2a", uniqueID: "test2a"),
-                WebhookSensor(name: "test2b", uniqueID: "test2b"),
-            ]),
-        ]
-
-        let promise2 = container.sensors(reason: .trigger("unit-test"))
-        let result2 = try hang(Promise(promise2))
-        XCTAssertEqual(Set(result2.sensors.map(\.Name)), Set([
-            "test1a_mod",
-        ]))
-
-        // not persisting -- this is e.g. an error case, but the error was silently successful
-        // the act of trying to mutate a sensor is going to cause it to need to be re-sent
-
-        MockSensorProvider.returnedPromises = [
-            .value([
-                WebhookSensor(name: "test1a", uniqueID: "test1a"),
-                WebhookSensor(name: "test1b", uniqueID: "test1b"),
-            ]),
-            .value([
-                WebhookSensor(name: "test2a", uniqueID: "test2a"),
-                WebhookSensor(name: "test2b", uniqueID: "test2b"),
-            ]),
-        ]
-
-        let promise3 = container.sensors(reason: .trigger("unit-test"))
-        let result3 = try hang(Promise(promise3))
-        XCTAssertEqual(Set(result3.sensors.map(\.Name)), Set([
-            "test1a",
-        ]))
-    }
-
-    func testTransientSensorExposedToObservers() throws {
-        container.register(provider: MockSensorProvider.self)
-
-        MockSensorProvider.returnedPromises = [.value([
-            WebhookSensor(name: "available", uniqueID: "available"),
-            WebhookSensor(name: "transient", uniqueID: "transient"),
-        ])]
-        let promise1 = container.sensors(reason: .trigger("unit-test"))
-        let result1 = try hang(Promise(promise1))
-        XCTAssertEqual(Set(result1.sensors.map(\.Name)), Set([
-            "available", "transient",
-        ]))
-
-        result1.didPersist()
-
-        MockSensorProvider.returnedPromises = [.value([
-            WebhookSensor(name: "available", uniqueID: "available"),
-            WebhookSensor(name: "transient_changed", uniqueID: "transient"),
-        ])]
-        let promise2 = container.sensors(reason: .trigger("unit-test"))
-        let result2 = try hang(Promise(promise2))
-        XCTAssertEqual(Set(result2.sensors.map(\.Name)), Set([
-            "transient_changed",
-        ]))
-
-        // not persisting 2 here
-
-        MockSensorProvider.returnedPromises = [.value([
-            WebhookSensor(name: "available", uniqueID: "available"),
-        ])]
-        let promise3 = container.sensors(reason: .trigger("unit-test"))
-        let result3 = try hang(Promise(promise3))
-        XCTAssertEqual(Set(result3.sensors.map(\.Name)), Set([]))
-
-        container.register(observer: observer)
-        XCTAssertEqual(observer.updates.count, 1)
-        let observerSensors = try hang(Promise(XCTUnwrap(observer.updates.last).sensors))
-        XCTAssertEqual(observerSensors.map(\.Name), [
-            // 'transient' being missing here means that we lost some previous state that was known to be valid
-            "available", "transient",
-        ])
-    }
-
     func testDisabledSensorRedacted() throws {
         container.register(provider: MockSensorProvider.self)
 
@@ -514,7 +320,7 @@ class SensorContainerTests: XCTestCase {
         let promises: [Promise<[WebhookSensor]>] = [.value([underlying])]
 
         MockSensorProvider.returnedPromises = promises
-        let promise1 = container.sensors(reason: .trigger("unit-test"))
+        let promise1 = container.sensors(reason: .trigger("unit-test"), server: server1)
         let result1 = try hang(Promise(promise1))
 
         let result1sensor = try XCTUnwrap(result1.sensors.first)
@@ -528,10 +334,61 @@ class SensorContainerTests: XCTestCase {
         XCTAssertTrue(container.isEnabled(sensor: underlying))
 
         MockSensorProvider.returnedPromises = promises
-        let promise2 = container.sensors(reason: .trigger("unit-test"))
+        let promise2 = container.sensors(reason: .trigger("unit-test"), server: server1)
         let result2 = try hang(Promise(promise2))
         let result2sensor = try XCTUnwrap(result2.sensors.first)
         XCTAssertEqual(result2sensor, underlying)
+    }
+
+    func testDisabledServersRedacted() throws {
+        container.register(provider: MockSensorProvider.self)
+
+        let underlying = with(WebhookSensor(name: "test1a", uniqueID: "testDisabled")) {
+            $0.State = "state"
+            $0.Attributes = ["test": true]
+        }
+
+        server1.info.setSetting(value: ServerSensorPrivacy.none, for: .sensorPrivacy)
+
+        MockSensorProvider.returnedPromises = [.value([underlying])]
+        let promiseS1 = container.sensors(reason: .trigger("unit-test"), server: server1)
+        let resultS1 = try hang(Promise(promiseS1))
+
+        MockSensorProvider.returnedPromises = [.value([underlying])]
+        let promiseS2 = container.sensors(reason: .trigger("unit-test"), server: server2)
+        let resultS2 = try hang(Promise(promiseS2))
+
+        let sensorS1 = try XCTUnwrap(resultS1.sensors.first)
+        XCTAssertEqual(sensorS1.UniqueID, underlying.UniqueID)
+        XCTAssertEqual(sensorS1.State as? String, "unavailable")
+        XCTAssertNil(sensorS1.Attributes)
+        XCTAssertEqual(sensorS1.Name, underlying.Name)
+        XCTAssertEqual(sensorS1.Icon, "mdi:dots-square")
+
+        let sensorS2 = try XCTUnwrap(resultS2.sensors.first)
+        XCTAssertEqual(sensorS2.UniqueID, underlying.UniqueID)
+        XCTAssertEqual(sensorS2.State as? String, "state")
+        XCTAssertEqual(sensorS2.Attributes?["test"] as? Bool, true)
+        XCTAssertEqual(sensorS2.Name, underlying.Name)
+    }
+
+    func testSensorsLimitedTo() throws {
+        container.register(provider: MockSensorProvider.self)
+        container.register(provider: MockSensorProviderLimitedTo.self)
+
+        let expected = WebhookSensor(name: "included", uniqueID: "included")
+        let promises: [Promise<[WebhookSensor]>] = [.value([expected])]
+
+        MockSensorProvider.returnedPromises = promises
+
+        let promise = container.sensors(
+            reason: .registration,
+            limitedTo: [MockSensorProvider.self],
+            location: nil,
+            server: server1
+        )
+        let result = try hang(Promise(promise))
+        XCTAssertEqual(Set(result.sensors.map(\.UniqueID)), Set(["included"]))
     }
 }
 
@@ -575,6 +432,17 @@ private class MockSensorProvider: SensorProvider {
 
     func sensors() -> Promise<[WebhookSensor]> {
         returnedPromise
+    }
+}
+
+private class MockSensorProviderLimitedTo: SensorProvider {
+    required init(request: SensorProviderRequest) {
+        //
+    }
+
+    func sensors() -> Promise<[WebhookSensor]> {
+        XCTFail("expected to not be called")
+        return .value([])
     }
 }
 

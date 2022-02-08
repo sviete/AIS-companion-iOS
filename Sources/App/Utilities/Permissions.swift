@@ -1,7 +1,6 @@
 import CoreLocation
 import CoreMotion
 import Foundation
-import Lottie
 import Shared
 import UIKit
 import UserNotifications
@@ -177,6 +176,7 @@ public enum PermissionType {
     var status: PermissionStatus {
         switch self {
         case .location:
+            guard CLLocationManager.locationServicesEnabled() else { return .restricted }
             return CLLocationManager.authorizationStatus().genericStatus
         case .motion:
             return CMMotionActivityManager.authorizationStatus().genericStatus

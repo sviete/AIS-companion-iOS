@@ -3,7 +3,6 @@ import HAKit
 @testable import HomeAssistant
 import PromiseKit
 @testable import Shared
-@testable import Tests_Shared
 import XCTest
 
 class OnboardingAuthTests: XCTestCase {
@@ -15,20 +14,11 @@ class OnboardingAuthTests: XCTestCase {
 
         auth = OnboardingAuth()
 
+        Current.servers = FakeServerManager()
+
         var instance = DiscoveredHomeAssistant(manualURL: URL(string: "https://external.homeassistant:8123")!)
         instance.internalURL = URL(string: "https://internal.homeassistant:8123")!
         self.instance = instance
-
-        Current.isTestingOnboarding = true
-
-        Current.settingsStore.tokenInfo = nil
-        Current.settingsStore.connectionInfo = nil
-    }
-
-    override func tearDown() {
-        super.tearDown()
-
-        Current.isTestingOnboarding = false
     }
 
     func testPlainSetup() {
@@ -57,18 +47,19 @@ class OnboardingAuthTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .specific)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testLoginFails() throws {
-        let result = auth(loginResult: .init(error: TestError.specific))
+        let result = auth(
+            internalLoginResult: .init(error: TestError.specific),
+            externalLoginResult: .init(error: TestError.any)
+        )
         XCTAssertThrowsError(try hang(result)) { error in
             XCTAssertEqual(error as? TestError, .specific)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testTokenFails() throws {
@@ -77,8 +68,7 @@ class OnboardingAuthTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .specific)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testBeforeRegisterFails() throws {
@@ -87,8 +77,7 @@ class OnboardingAuthTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .specific)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testRegisterFails() throws {
@@ -97,8 +86,7 @@ class OnboardingAuthTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .specific)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testAfterRegisterFails() throws {
@@ -107,8 +95,7 @@ class OnboardingAuthTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .specific)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testCompleteFails() throws {
@@ -117,18 +104,19 @@ class OnboardingAuthTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .specific)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testCancelledLogin() throws {
-        let result = auth(loginResult: .init(error: TestError.cancelled))
+        let result = auth(
+            includeExternal: false, // cancelled should not attempt external
+            internalLoginResult: .init(error: TestError.cancelled)
+        )
         XCTAssertThrowsError(try hang(result)) { error in
             XCTAssertEqual(error as? TestError, .cancelled)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
     func testCancelledBefore() throws {
@@ -137,42 +125,89 @@ class OnboardingAuthTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .cancelled)
         }
 
-        XCTAssertNil(Current.settingsStore.tokenInfo)
-        XCTAssertNil(Current.settingsStore.connectionInfo)
+        XCTAssertTrue(Current.servers.all.isEmpty)
     }
 
-    func testSuccessfulWithInternalAndExternal() throws {
+    func testSuccessfulWithInternalAndExternalAndInternalSucceedsWithoutSSID() throws {
+        Current.connectivity.currentWiFiSSID = { nil }
+
         let result = auth()
-        XCTAssertNoThrow(try hang(result))
+        let server = try hang(result)
         // test api state
         // add tests above to test negated api state
 
-        let tokenInfo = try XCTUnwrap(Current.settingsStore.tokenInfo)
+        let tokenInfo = server.info.token
         XCTAssertEqual(tokenInfo.accessToken, "access_token1")
         XCTAssertEqual(tokenInfo.refreshToken, "refresh_token1")
 
-        let connectionInfo = try XCTUnwrap(Current.settingsStore.connectionInfo)
-        XCTAssertEqual(connectionInfo.internalURL, instance.internalURL)
-        XCTAssertEqual(connectionInfo.externalURL, instance.externalURL)
+        let connectionInfo = server.info.connection
+        XCTAssertEqual(connectionInfo.address(for: .internal), instance.internalURL)
+        XCTAssertEqual(connectionInfo.address(for: .external), instance.externalURL)
         XCTAssertEqual(connectionInfo.overrideActiveURLType, .internal)
+
+        XCTAssertEqual(Current.servers.server(for: server.identifier)?.info, server.info)
+    }
+
+    func testSuccessfulWithInternalAndExternalAndInternalSucceedsWithSSID() throws {
+        Current.connectivity.currentWiFiSSID = { "unit_test" }
+        Current.connectivity.currentNetworkHardwareAddress = { "unit_test_addr" }
+
+        let result = auth()
+        let server = try hang(result)
+        // test api state
+        // add tests above to test negated api state
+
+        let tokenInfo = server.info.token
+        XCTAssertEqual(tokenInfo.accessToken, "access_token1")
+        XCTAssertEqual(tokenInfo.refreshToken, "refresh_token1")
+
+        let connectionInfo = server.info.connection
+        XCTAssertEqual(connectionInfo.address(for: .internal), instance.internalURL)
+        XCTAssertEqual(connectionInfo.address(for: .external), instance.externalURL)
+        XCTAssertEqual(connectionInfo.internalSSIDs, ["unit_test"])
+        XCTAssertEqual(connectionInfo.internalHardwareAddresses, ["unit_test_addr"])
+
+        XCTAssertEqual(Current.servers.server(for: server.identifier)?.info, server.info)
+    }
+
+    func testSuccessfulWithInternalAndExternalAndInternalFails() throws {
+        let result = auth(internalLoginResult: .init(error: TestError.specific))
+        let server = try hang(result)
+        // test api state
+        // add tests above to test negated api state
+
+        let tokenInfo = server.info.token
+        XCTAssertEqual(tokenInfo.accessToken, "access_token1")
+        XCTAssertEqual(tokenInfo.refreshToken, "refresh_token1")
+
+        let connectionInfo = server.info.connection
+        XCTAssertNil(connectionInfo.address(for: .internal))
+        XCTAssertEqual(connectionInfo.address(for: .external), instance.externalURL)
+        XCTAssertNil(connectionInfo.overrideActiveURLType)
+        XCTAssertTrue(connectionInfo.useCloud)
+
+        XCTAssertEqual(Current.servers.server(for: server.identifier)?.info, server.info)
     }
 
     func testSuccessfulWithOnlyExternal() throws {
         instance.internalURL = nil
 
         let result = auth()
-        XCTAssertNoThrow(try hang(result))
+        let server = try hang(result)
         // test api state
         // add tests above to test negated api state
 
-        let tokenInfo = try XCTUnwrap(Current.settingsStore.tokenInfo)
+        let tokenInfo = server.info.token
         XCTAssertEqual(tokenInfo.accessToken, "access_token1")
         XCTAssertEqual(tokenInfo.refreshToken, "refresh_token1")
 
-        let connectionInfo = try XCTUnwrap(Current.settingsStore.connectionInfo)
-        XCTAssertNil(connectionInfo.internalURL)
-        XCTAssertEqual(connectionInfo.externalURL, instance.externalURL)
+        let connectionInfo = server.info.connection
+        XCTAssertNil(connectionInfo.address(for: .internal))
+        XCTAssertEqual(connectionInfo.address(for: .external), instance.externalURL)
         XCTAssertNil(connectionInfo.overrideActiveURLType)
+        XCTAssertTrue(connectionInfo.useCloud)
+
+        XCTAssertEqual(Current.servers.server(for: server.identifier)?.info, server.info)
     }
 
     func testOrderPostCommands() throws {
@@ -244,8 +279,11 @@ class OnboardingAuthTests: XCTestCase {
     }
 
     private func auth(
+        includeInternal: Bool = true,
+        includeExternal: Bool = true,
         preBeforeAuth: [Promise<Void>] = [.value(()), .value(()), .value(())],
-        loginResult: Promise<String> = .value("code1"),
+        internalLoginResult: Promise<String> = .value("code1"),
+        externalLoginResult: Promise<String> = .value("code1"),
         tokenResult: Promise<TokenInfo> = .value(TokenInfo(
             accessToken: "access_token1",
             refreshToken: "refresh_token1",
@@ -255,7 +293,7 @@ class OnboardingAuthTests: XCTestCase {
         postRegister: [Promise<Void>] = [.value(()), .value(()), .value(())],
         postAfterRegister: [Promise<Void>] = [.value(()), .value(()), .value(())],
         postComplete: [Promise<Void>] = [.value(()), .value(()), .value(())]
-    ) -> Promise<Void> {
+    ) -> Promise<Server> {
         var preSteps: [OnboardingAuthPreStep.Type] = []
         var postSteps: [OnboardingAuthPostStep.Type] = []
 
@@ -308,13 +346,26 @@ class OnboardingAuthTests: XCTestCase {
         auth.preSteps = preSteps
         auth.postSteps = postSteps
 
+        var expectedDetails: [OnboardingAuthDetails] = []
+        var loginResults: [Promise<String>] = []
+
+        if includeInternal, let internalURL = instance.internalURL {
+            expectedDetails.append(try! .init(baseURL: internalURL))
+            loginResults.append(internalLoginResult)
+        }
+
+        if includeExternal, let externalURL = instance.externalURL {
+            expectedDetails.append(try! .init(baseURL: externalURL))
+            loginResults.append(externalLoginResult)
+        }
+
         auth.login = FakeOnboardingAuthLogin(
-            expectedDetails: try? .init(baseURL: instance.internalOrExternalURL),
-            result: loginResult
+            expectedDetails: expectedDetails,
+            results: loginResults
         )
         auth.tokenExchange = FakeOnboardingAuthTokenExchange(
             result: tokenResult,
-            expectedCode: loginResult.value
+            expectedCode: internalLoginResult.value ?? externalLoginResult.value
         )
 
         return auth.authenticate(to: instance, sender: UIViewController())
@@ -340,18 +391,24 @@ protocol FakeAuthStepResultable {
     static var wasInvoked: Bool { get set }
 }
 
-struct FakeOnboardingAuthLogin: OnboardingAuthLogin {
+class FakeOnboardingAuthLogin: OnboardingAuthLogin {
     func open(authDetails: OnboardingAuthDetails, sender: UIViewController) -> Promise<String> {
-        XCTAssertEqual(authDetails, expectedDetails)
-        return result
+        let expected = expectedDetails.removeFirst()
+        XCTAssertEqual(authDetails, expected)
+        return results.removeFirst()
     }
 
-    var expectedDetails: OnboardingAuthDetails?
-    var result: Promise<String>
+    var expectedDetails: [OnboardingAuthDetails]
+    var results: [Promise<String>]
+
+    init(expectedDetails: [OnboardingAuthDetails?], results: [Promise<String>]) {
+        self.expectedDetails = expectedDetails.compactMap { $0 }
+        self.results = results
+    }
 }
 
 struct FakeOnboardingAuthTokenExchange: OnboardingAuthTokenExchange {
-    func tokenInfo(code: String, connectionInfo: ConnectionInfo) -> Promise<TokenInfo> {
+    func tokenInfo(code: String, connectionInfo: inout ConnectionInfo) -> Promise<TokenInfo> {
         XCTAssertEqual(code, expectedCode)
         return result
     }
@@ -406,11 +463,9 @@ class FakeOnboardingAuthPreStepBeforeAuth3: FakeOnboardingAuthPreStepBeforeAuth,
 class FakeOnboardingAuthPostStep: OnboardingAuthPostStep {
     class var supportedPoints: Set<OnboardingAuthStepPoint> { fatalError() }
 
-    var connection: HAConnection
     var api: HomeAssistantAPI
     var sender: UIViewController
-    required init(connection: HAConnection, api: HomeAssistantAPI, sender: UIViewController) {
-        self.connection = connection
+    required init(api: HomeAssistantAPI, sender: UIViewController) {
         self.api = api
         self.sender = sender
     }

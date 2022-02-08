@@ -3,6 +3,7 @@ import CallbackURLKit
 import Communicator
 import FirebaseCore
 import FirebaseMessaging
+import Intents
 import KeychainAccess
 import MBProgressHUD
 import ObjectMapper
@@ -63,6 +64,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        MaterialDesignIcons.register()
+
         guard !Current.isRunningTests else {
             return true
         }
@@ -105,8 +108,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         zoneManager = ZoneManager()
 
         UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
-
-        MaterialDesignIcons.register()
 
         setupWatchCommunicator()
         setupiOS12Features()
@@ -282,21 +283,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Current.Log.verbose("Background fetch activated at \(timestamp)!")
 
         Current.backgroundTask(withName: "background-fetch") { remaining in
-            Current.api.then(on: nil) { api -> Promise<Void> in
-                let updatePromise: Promise<Void>
-
-                if Current.settingsStore.isLocationEnabled(for: UIApplication.shared.applicationState),
-                   Current.settingsStore.locationSources.backgroundFetch {
-                    updatePromise = api.GetAndSendLocation(
-                        trigger: .BackgroundFetch,
-                        maximumBackgroundTime: remaining
-                    ).asVoid()
-                } else {
-                    updatePromise = api.UpdateSensors(trigger: .BackgroundFetch).asVoid()
-                }
-
-                return updatePromise
+            let updatePromise: Promise<Void>
+            if Current.settingsStore.isLocationEnabled(for: UIApplication.shared.applicationState),
+               Current.settingsStore.locationSources.backgroundFetch {
+                updatePromise = firstly {
+                    Current.location.oneShotLocation(.BackgroundFetch, remaining)
+                }.then { location in
+                    when(fulfilled: Current.apis.map {
+                        $0.SubmitLocation(updateType: .BackgroundFetch, location: location, zone: nil)
+                    })
+                }.asVoid()
+            } else {
+                updatePromise = when(fulfilled: Current.apis.map {
+                    $0.UpdateSensors(trigger: .BackgroundFetch, location: nil)
+                })
             }
+
+            return updatePromise
         }.done {
             completionHandler(.newData)
         }.catch { error in
@@ -369,6 +372,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
+    func application(_ application: UIApplication, handlerFor intent: INIntent) -> Any? {
+        if #available(iOS 13, *) {
+            return IntentHandlerFactory.handler(for: intent)
+        } else {
+            return nil
+        }
+    }
+
     // MARK: - Private helpers
 
     @objc func checkForUpdate(_ sender: AnyObject? = nil) {
@@ -422,16 +433,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }.catch { error in
             Current.Log.error("check error: \(error)")
         }
+
+        showNotificationCategoryAlertIfNeeded()
+    }
+
+    private func showNotificationCategoryAlertIfNeeded() {
+        guard Current.realm().objects(NotificationCategory.self).isEmpty == false else {
+            return
+        }
+
+        let userDefaults = UserDefaults.standard
+        let seenKey = "category-deprecation-3-" + Current.clientVersion().description
+
+        guard !userDefaults.bool(forKey: seenKey) else {
+            return
+        }
+
+        when(fulfilled: Current.apis.map { $0.connection.caches.user.once().promise }).done { [sceneManager] users in
+            guard users.contains(where: \.isAdmin) else {
+                Current.Log.info("not showing because not an admin anywhere")
+                return
+            }
+
+            let alert = UIAlertController(
+                title: L10n.Alerts.Deprecations.NotificationCategory.title,
+                message: L10n.Alerts.Deprecations.NotificationCategory.message("iOS-2022.4"),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: L10n.Nfc.List.learnMore, style: .default, handler: { _ in
+                userDefaults.set(true, forKey: seenKey)
+                openURLInBrowser(
+                    URL(string: "https://companion.home-assistant.io/app/ios/actionable-notifications")!,
+                    nil
+                )
+            }))
+            alert.addAction(UIAlertAction(title: L10n.okLabel, style: .cancel, handler: { _ in
+                userDefaults.set(true, forKey: seenKey)
+            }))
+            sceneManager.webViewWindowControllerPromise.done {
+                $0.present(alert)
+            }
+        }.catch { error in
+            Current.Log.error("couldn't check for if user: \(error)")
+        }
     }
 
     func setupWatchCommunicator() {
-        _ = NotificationCenter.default.addObserver(
-            forName: SettingsStore.connectionInfoDidChange,
-            object: nil,
-            queue: nil
-        ) { _ in
-            _ = HomeAssistantAPI.SyncWatchContext()
-        }
+        Current.servers.add(observer: self)
 
         // This directly mutates the data structure for observations to avoid race conditions.
 
@@ -458,15 +506,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 Current.Log.verbose("Received ActionRowPressed \(message) \(message.content)")
                 let responseIdentifier = "ActionRowPressedResponse"
 
-                guard let actionID = message.content["ActionID"] as? String else {
+                guard let actionID = message.content["ActionID"] as? String,
+                      let action = Current.realm().object(ofType: Action.self, forPrimaryKey: actionID),
+                      let server = Current.servers.server(for: action) else {
                     Current.Log.warning("ActionID either does not exist or is not a string in the payload")
                     message.reply(.init(identifier: responseIdentifier, content: ["fired": false]))
                     return
                 }
 
-                Current.api.then(on: nil) { api in
-                    api.HandleAction(actionID: actionID, source: .Watch)
-                }.done { _ in
+                firstly {
+                    Current.api(for: server).HandleAction(actionID: actionID, source: .Watch)
+                }.done {
                     message.reply(.init(identifier: responseIdentifier, content: ["fired": true]))
                 }.catch { err -> Void in
                     Current.Log.error("Error during action event fire: \(err)")
@@ -477,10 +527,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let responseIdentifier = "PushActionResponse"
 
                 if let infoJSON = message.content["PushActionInfo"] as? [String: Any],
-                   let info = Mapper<HomeAssistantAPI.PushActionInfo>().map(JSON: infoJSON) {
+                   let info = Mapper<HomeAssistantAPI.PushActionInfo>().map(JSON: infoJSON),
+                   let serverIdentifier = message.content["Server"] as? String,
+                   let server = Current.servers.server(forServerIdentifier: serverIdentifier) {
                     Current.backgroundTask(withName: "watch-push-action") { _ in
-                        Current.api.then(on: nil) { api in
-                            api.handlePushAction(for: info)
+                        firstly {
+                            Current.api(for: server).handlePushAction(for: info)
                         }.ensure {
                             message.reply(.init(identifier: responseIdentifier))
                         }
@@ -574,4 +626,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // swiftlint:disable:next file_length
+}
+
+extension AppDelegate: ServerObserver {
+    func serversDidChange(_ serverManager: ServerManager) {
+        _ = HomeAssistantAPI.SyncWatchContext()
+    }
 }
