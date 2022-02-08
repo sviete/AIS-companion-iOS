@@ -249,7 +249,7 @@ Tags funktionieren auf jedem Gerät mit Hardwareunterstützung zum Lesen von NFC
 "onboarding.welcome.description" = "Diese App stellt eine Verbindung zu Ihrem Home Assistant-Server her und ermöglicht die Integration von Daten über Sie und Ihr Telefon.\
 \
 Home Assistant ist eine kostenlose und quelloffene Hausautomatisierungssoftware mit dem Schwerpunkt auf lokaler Kontrolle und Datenschutz.";
-"onboarding.welcome.title" = "Willkommen bei Home Assistant %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker %@!";
 "open_label" = "Öffnen";
 "preview_output" = "Vorschau der Ausgabe";
 "requires_version" = "Requires %@ or later.";

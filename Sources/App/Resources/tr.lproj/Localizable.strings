@@ -249,7 +249,7 @@
 "onboarding.welcome.description" = "Bu uygulama, Home Assistant sunucunuza bağlanır ve siz ve telefonunuz hakkındaki verilerin entegre edilmesini sağlar. \
 \
  Home Assistant, yerel kontrol ve gizliliğe odaklanan ücretsiz ve açık kaynaklı bir ev otomasyon yazılımıdır.";
-"onboarding.welcome.title" = "Home Assistant'a Hoş Geldiniz %@!";
+"onboarding.welcome.title" = "Welcome to AI-Speaker %@!";
 "open_label" = "Açık";
 "preview_output" = "Önizleme Çıktısı";
 "requires_version" = "%@ veya daha yenisini gerektirir.";
